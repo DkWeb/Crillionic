@@ -1,5 +1,6 @@
 package de.dkweb.crillionic.model;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -15,13 +16,17 @@ public class GameObject {
     private Sprite sprite;
     private Body body;
 
-    public GameObject(String id, Sprite sprite, Body body) {
+    public GameObject(String id, Sprite sprite, Body body, Color color) {
         this.id = id;
         this.sprite = sprite;
         this.body = body;
+        this.body.setUserData(id);
         sprite.setSize(getMaxWidth(), getMaxHeight());
         sprite.setCenter(body.getPosition().x, body.getPosition().y);
         sprite.setOriginCenter();
+        if (color != null) {
+            sprite.setColor(color);
+        }
     }
 
     public Vector2 getPosition() {
