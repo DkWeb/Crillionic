@@ -42,7 +42,7 @@ public enum BlockType {
 
         @Override
         public Color getColor() {
-            return Color.RED;
+            return new Color(1f, 0f, 0f, ALPHA_VALUE);
         }
 
         @Override
@@ -68,7 +68,7 @@ public enum BlockType {
 
         @Override
         public Color getColor() {
-            return Color.BLUE;
+            return new Color(0f, 0f, 1f, ALPHA_VALUE);
         }
 
         @Override
@@ -94,7 +94,7 @@ public enum BlockType {
 
         @Override
         public Color getColor() {
-            return Color.GREEN;
+            return new Color(0f, 1f, 0f, ALPHA_VALUE);
         }
 
         @Override
@@ -120,7 +120,7 @@ public enum BlockType {
 
         @Override
         public Color getColor() {
-            return Color.RED;
+            return new Color(1f, 0f, 0f, ALPHA_VALUE);
         }
 
         @Override
@@ -146,7 +146,7 @@ public enum BlockType {
 
         @Override
         public Color getColor() {
-            return Color.GREEN;
+            return new Color(0f, 0f, 1f, ALPHA_VALUE);
         }
 
         @Override
@@ -172,7 +172,7 @@ public enum BlockType {
 
         @Override
         public Color getColor() {
-            return Color.BLUE;
+            return new Color(0f, 0f, 0f, ALPHA_VALUE);
         }
 
         @Override
@@ -198,7 +198,7 @@ public enum BlockType {
 
         @Override
         public Color getColor() {
-            return Color.BLACK;
+            return new Color(0f, 0f, 0f, ALPHA_VALUE);
         }
 
         @Override
@@ -218,6 +218,7 @@ public enum BlockType {
     };
 
     private final static int SCORE_PER_BLOCK = 1000;
+    private final static float ALPHA_VALUE = 0.8f;
     public abstract int getScore();
     public abstract Color getColor();
     public abstract boolean canBeDestroyed();

@@ -66,6 +66,10 @@ public class GameObject {
         body.applyForceToCenter(0f, -1 * forceInNewton, true);
     }
 
+    public void moveUp(float forceInNewton) {
+        body.applyForceToCenter(0f, forceInNewton, true);
+    }
+
     public void rotate(float degree) {
         body.setTransform(body.getPosition(), degreeToRad(degree));
     }
