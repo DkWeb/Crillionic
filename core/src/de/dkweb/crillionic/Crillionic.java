@@ -36,4 +36,8 @@ public class Crillionic extends Game {
     public void startLevel() {
         setScreen(new LevelScreen(this, assets));
     }
+
+    public void openMainMenu() {
+        setScreen(new MenuScreen(this, assets));
+    }
 }

@@ -16,6 +16,7 @@ import de.dkweb.crillionic.LevelFactory;
 import de.dkweb.crillionic.events.ColoredBlockCollisionHandler;
 import de.dkweb.crillionic.events.ColorizerBlockCollisionHandler;
 import de.dkweb.crillionic.events.DoNothingCollisionHandler;
+import de.dkweb.crillionic.events.KillBlockCollisionHandler;
 import de.dkweb.crillionic.input.SimpleInputProcessor;
 import de.dkweb.crillionic.map.LevelMap;
 import de.dkweb.crillionic.map.MapObject;
@@ -65,7 +66,7 @@ public class LevelScreen implements Screen {
         world = new World(new Vector2(0f, 0f), true);
         pendingEffects = new ArrayList<ParticleEffectPool.PooledEffect>();
         toRemove = new ArrayList<GameObject>();
-        gameStatistics = new GameStatistics(0, 1);
+        gameStatistics = new GameStatistics(0, 1, 1);
 
         Vector2 positionPlayer = new Vector2(0f, 3f);
         Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
@@ -191,7 +192,7 @@ public class LevelScreen implements Screen {
                     block.getColor(), new ColorizerBlockCollisionHandler());
         } else if (BlockType.KILLER == block.getType()){
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.KILL_BLOCK_TEXTURE)), body,
-                    block.getColor(), new DoNothingCollisionHandler());
+                    block.getColor(), new KillBlockCollisionHandler());
         } else {
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
                     block.getColor(), new DoNothingCollisionHandler());
@@ -269,6 +270,11 @@ public class LevelScreen implements Screen {
         }
         batch.end();
 
+        removeOutdatedParticleEffects();
+        removeElementsFromWorld();
+    }
+
+    private void removeOutdatedParticleEffects() {
         List<ParticleEffect> effectsToRemove = new ArrayList<ParticleEffect>();
         for (ParticleEffectPool.PooledEffect effect : pendingEffects) {
             if (effect.isComplete()) {
@@ -279,12 +285,20 @@ public class LevelScreen implements Screen {
         if (effectsToRemove.size() > 0) {
             pendingEffects.removeAll(effectsToRemove);
         }
+    }
+
+    private void removeElementsFromWorld() {
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
                 if (toRemove.size() > 0) {
                     for (GameObject oneToRemove : toRemove) {
                         world.destroyBody(oneToRemove.getBody());
+                        if (oneToRemove.getId().equals(GlobalConstants.PLAYER_ID)) {
+                            if (gameStatistics.getLifes() == 0) {
+                                game.openMainMenu();
+                            }
+                        }
                     }
                     allBlocks.removeAll(toRemove);
                     toRemove.clear();
