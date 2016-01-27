@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.dkweb.crillionic.Crillionic;
@@ -46,7 +47,7 @@ public class LevelScreen implements Screen {
     @Override
     public void show() {
         camera = new OrthographicCamera();
-        viewport = new FitViewport(GlobalConstants.WORLD_WIDTH_IN_UNITS, GlobalConstants.WORLD_HEIGHT_IN_UNITS,
+        viewport = new FillViewport(GlobalConstants.WORLD_WIDTH_IN_UNITS, GlobalConstants.WORLD_HEIGHT_IN_UNITS,
                 camera);
 
         backgroundTexture = assets.getTexture(Assets.BACKGROUND);
@@ -191,6 +192,7 @@ public class LevelScreen implements Screen {
         backgroundBatch.draw(backgroundTexture, 0f, 0f);
         backgroundBatch.end();
 
+        camera.position.x = player.getPosition().x;
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();

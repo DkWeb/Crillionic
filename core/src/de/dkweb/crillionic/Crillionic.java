@@ -30,7 +30,6 @@ public class Crillionic extends Game {
 	@Override
 	public void create () {
         assets = new Assets();
-        // setScreen(new LevelScreen(assets));
 		setScreen(new MenuScreen(this, assets));
 	}
 
