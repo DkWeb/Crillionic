@@ -7,6 +7,10 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
+import de.dkweb.crillionic.events.DoNothingCollisionHandler;
+import de.dkweb.crillionic.events.GameObjectCollisionHandler;
+
+import java.util.List;
 
 /**
  * Created by dirkweber
@@ -15,12 +19,17 @@ public class GameObject {
     private String id;
     private Sprite sprite;
     private Body body;
+    private GameObjectCollisionHandler collisionHandler;
+    private Color color;
 
-    public GameObject(String id, Sprite sprite, Body body, Color color) {
+    public GameObject(String id, Sprite sprite, Body body, Color color,
+                      GameObjectCollisionHandler collisionHandler) {
         this.id = id;
         this.sprite = sprite;
+        this.color = color;
         this.body = body;
         this.body.setUserData(id);
+        this.collisionHandler = collisionHandler;
         sprite.setSize(getMaxWidth(), getMaxHeight());
         sprite.setCenter(body.getPosition().x, body.getPosition().y);
         sprite.setOriginCenter();
@@ -124,5 +133,25 @@ public class GameObject {
 
     public Sprite getSprite() {
         return sprite;
+    }
+
+    public boolean onCollision(List<GameObject> removals, GameObject collidedWith, GameStatistics statistics) {
+        if (collisionHandler != null && !(collisionHandler instanceof DoNothingCollisionHandler)) {
+            return collisionHandler.onCollision(removals, this, collidedWith, statistics);
+        }
+        return false;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public Body getBody() {
+        return body;
+    }
+
+    public void changeColor(Color color) {
+        this.color = color;
+        sprite.setColor(color);
     }
 }

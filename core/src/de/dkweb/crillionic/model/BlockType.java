@@ -2,6 +2,9 @@ package de.dkweb.crillionic.model;
 
 import com.badlogic.gdx.graphics.Color;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by dirkweber
  *
@@ -216,6 +219,10 @@ public enum BlockType {
             return false;
         }
     };
+
+    public final static List<BlockType> COLORED_BLOCKS = Arrays.asList(new BlockType[] { RED, GREEN, BLUE });
+    public final static List<BlockType> COLORIZE_BLOCKS = Arrays.asList(new BlockType[] { COLORIZE_RED, COLORIZE_GREEN,
+                                                                                        COLORIZE_BLUE });
 
     private final static int SCORE_PER_BLOCK = 1000;
     private final static float ALPHA_VALUE = 0.8f;

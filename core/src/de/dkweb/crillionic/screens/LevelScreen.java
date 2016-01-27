@@ -13,10 +13,15 @@ import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.LevelFactory;
+import de.dkweb.crillionic.events.ColoredBlockCollisionHandler;
+import de.dkweb.crillionic.events.ColorizerBlockCollisionHandler;
+import de.dkweb.crillionic.events.DoNothingCollisionHandler;
 import de.dkweb.crillionic.input.SimpleInputProcessor;
 import de.dkweb.crillionic.map.LevelMap;
 import de.dkweb.crillionic.map.MapObject;
+import de.dkweb.crillionic.model.BlockType;
 import de.dkweb.crillionic.model.GameObject;
+import de.dkweb.crillionic.model.GameStatistics;
 import de.dkweb.crillionic.utils.Assets;
 import de.dkweb.crillionic.utils.GlobalConstants;
 import de.dkweb.crillionic.utils.JsonManager;
@@ -39,6 +44,8 @@ public class LevelScreen implements Screen {
     private List<GameObject> allBorders;
     private Assets assets;
     private List<ParticleEffectPool.PooledEffect> pendingEffects;
+    private List<GameObject> toRemove;
+    private GameStatistics gameStatistics;
     private Crillionic game;
 
     public LevelScreen(Crillionic game, Assets assets) {
@@ -57,10 +64,13 @@ public class LevelScreen implements Screen {
         backgroundBatch = new SpriteBatch();
         world = new World(new Vector2(0f, 0f), true);
         pendingEffects = new ArrayList<ParticleEffectPool.PooledEffect>();
+        toRemove = new ArrayList<GameObject>();
+        gameStatistics = new GameStatistics(0, 1);
 
         Vector2 positionPlayer = new Vector2(0f, 3f);
         Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
-        player = new GameObject("Player 1", new Sprite(assets.getTexture(Assets.BALL_TEXTURE)), bodyPlayer, Color.RED);
+        player = new GameObject(GlobalConstants.PLAYER_ID, new Sprite(assets.getTexture(Assets.BALL_TEXTURE)), bodyPlayer,
+                                Color.GREEN, new DoNothingCollisionHandler());
         world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
@@ -86,12 +96,14 @@ public class LevelScreen implements Screen {
                         GameObject block = findBlockObject((String) userData);
                         if (block != null) {
                             WorldManifold manifold = contact.getWorldManifold();
-                            Vector2 contactPos = manifold.getPoints()[0];
-                            ParticleEffectPool.PooledEffect explosion = assets.getExplosionEffect();
-                            explosion.getEmitters().first().setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-                            explosion.setPosition(contactPos.x, contactPos.y);
-                            explosion.start();
-                            pendingEffects.add(explosion);
+                            if (block.onCollision(toRemove, player, gameStatistics)) {
+                                Vector2 contactPos = manifold.getPoints()[0];
+                                ParticleEffectPool.PooledEffect explosion = assets.getExplosionEffect();
+                                explosion.getEmitters().first().setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+                                explosion.setPosition(contactPos.x, contactPos.y);
+                                explosion.start();
+                                pendingEffects.add(explosion);
+                            }
                         }
                     }
                 }
@@ -135,19 +147,21 @@ public class LevelScreen implements Screen {
         Body body = definePhysicsObject(new Vector2(0f, GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2),
                 verticesBorderHorizontal, BodyDef.BodyType.StaticBody, 1f);
         borders.add(new GameObject("Border top", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body,
-                null));
+                                    null, new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(0f, -1 * (GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2)),
                 verticesBorderHorizontal, BodyDef.BodyType.StaticBody, 1f);
-        borders.add(new GameObject("Border bottom", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null));
+        borders.add(new GameObject("Border bottom", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null,
+                                    new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(-1 * (GlobalConstants.WORLD_WIDTH_IN_UNITS / 2), 0f),
                 verticesBorderVertical, BodyDef.BodyType.StaticBody, 1f);
-        borders.add(new GameObject("Border left", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null));
+        borders.add(new GameObject("Border left", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null,
+                                    new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(GlobalConstants.WORLD_WIDTH_IN_UNITS / 2, 0f),
                 verticesBorderVertical, BodyDef.BodyType.StaticBody, 1f);
-        borders.add(new GameObject("Border right", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null));
+        borders.add(new GameObject("Border right", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null, new DoNothingCollisionHandler()));
 
         return borders;
     }
@@ -161,11 +175,25 @@ public class LevelScreen implements Screen {
                 new Vector2( 1, -0.5f),
                 new Vector2( 1,  0.5f)};
         for (MapObject block : map.getAllBlocks()) {
-            Body body = definePhysicsObject(block.getPosition(), verticesBlock, BodyDef.BodyType.StaticBody, 1f);
-            nonPlayerObjects.add(new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body, block
-                    .getColor()));
+            nonPlayerObjects.add(createBlockObject(block, verticesBlock));
         }
         return nonPlayerObjects;
+    }
+
+    private GameObject createBlockObject(MapObject block, Vector2[] verticesBlock) {
+        GameObject gameObject = null;
+        Body body = definePhysicsObject(block.getPosition(), verticesBlock, BodyDef.BodyType.StaticBody, 1f);
+        if (BlockType.COLORED_BLOCKS.contains(block.getType())) {
+            gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
+                                        block.getColor(), new ColoredBlockCollisionHandler());
+        } else if (BlockType.COLORIZE_BLOCKS.contains(block.getType())){
+            gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
+                    block.getColor(), new ColorizerBlockCollisionHandler());
+        } else {
+            gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
+                    block.getColor(), new DoNothingCollisionHandler());
+        }
+        return gameObject;
     }
 
     private Body definePhysicsObject(Vector2 position, float radius, BodyDef.BodyType bodyType,
@@ -226,7 +254,6 @@ public class LevelScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        player.getSprite().setColor(1f, 1f, 0f, 1f);
         player.getSprite().draw(batch);
         for (GameObject block : allBlocks) {
             block.getSprite().draw(batch);
@@ -249,6 +276,18 @@ public class LevelScreen implements Screen {
         if (effectsToRemove.size() > 0) {
             pendingEffects.removeAll(effectsToRemove);
         }
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                if (toRemove.size() > 0) {
+                    for (GameObject oneToRemove : toRemove) {
+                        world.destroyBody(oneToRemove.getBody());
+                    }
+                    allBlocks.removeAll(toRemove);
+                    toRemove.clear();
+                }
+            }
+        });
     }
 
     @Override

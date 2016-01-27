@@ -8,6 +8,6 @@
   "Block 4": {"id":"Block 4","type":"COLORIZE_RED","position":{"x":  0,"y":-1}},
   "Block 5": {"id":"Block 5","type":"COLORIZE_BLUE","position":{"x": -2,"y":-1}},
   "Block 6": {"id":"Block 6","type":"KILLER","position":{"x": 2,"y":1}},
-  "Block 7": {"id":"Block 6","type":"RED","position":{"x": 0,"y":1}}
+  "Block 7": {"id":"Block 7","type":"RED","position":{"x": 0,"y":1}}
 }
 }
