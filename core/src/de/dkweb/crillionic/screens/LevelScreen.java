@@ -85,9 +85,11 @@ public class LevelScreen implements Screen {
                         // This should be the id of GameObject
                         GameObject block = findBlockObject((String) userData);
                         if (block != null) {
+                            WorldManifold manifold = contact.getWorldManifold();
+                            Vector2 contactPos = manifold.getPoints()[0];
                             ParticleEffectPool.PooledEffect explosion = assets.getExplosionEffect();
                             explosion.getEmitters().first().setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
-                            explosion.setPosition(block.getPosition().x, block.getPosition().y);
+                            explosion.setPosition(contactPos.x, contactPos.y);
                             explosion.start();
                             pendingEffects.add(explosion);
                         }
