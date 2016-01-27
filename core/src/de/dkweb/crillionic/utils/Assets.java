@@ -1,11 +1,14 @@
 package de.dkweb.crillionic.utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 public class Assets {
@@ -14,10 +17,13 @@ public class Assets {
 	public static final String BORDER_TEXTURE = "wood.jpg";
     public static final String BACKGROUND = "background.jpg";
 
+    private static final String EFFECTS_FOLDER = "effects";
+	private static final String EXPLOSION_EFFECT = "explosion.p";
 	private static final String STANDARD_FONT_NAME = "Roboto-Regular.ttf";
 	private static final int FONT_SIZE = 26;
 	private AssetManager assetManager;
 	private boolean allLoaded;
+    private ParticleEffectPool explosionEffectPool;
 
 	public Assets() {
 		allLoaded = false;
@@ -28,10 +34,18 @@ public class Assets {
 		loadTexture(BLOCK_TEXTURE);
 		loadTexture(BORDER_TEXTURE);
 		loadTexture(BACKGROUND);
+        loadParticleEffects();
 		assetManager.finishLoading();
 		allLoaded = true;
 	}
 	
+    public void loadParticleEffects() {
+        ParticleEffect explosionEffect = new ParticleEffect();
+        explosionEffect.load(Gdx.files.internal(EFFECTS_FOLDER + "/" + EXPLOSION_EFFECT), Gdx.files.internal
+                (EFFECTS_FOLDER));
+        explosionEffectPool = new ParticleEffectPool(explosionEffect, 1, 50);
+    }
+
 	private void loadTexture(String path) {
 		TextureParameter param = new TextureParameter();
 		param.minFilter = TextureFilter.Linear;
@@ -60,5 +74,13 @@ public class Assets {
 
 	public boolean finishedLoading() {
 		return allLoaded && assetManager.update();
+    }
+
+    public ParticleEffectPool.PooledEffect getExplosionEffect() {
+        return explosionEffectPool.obtain();
 	}
+
+    public void freeEffect(ParticleEffectPool.PooledEffect effect) {
+        explosionEffectPool.free(effect);
+    }
 }

@@ -3,12 +3,13 @@ package de.dkweb.crillionic.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.FillViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.LevelFactory;
@@ -37,6 +38,7 @@ public class LevelScreen implements Screen {
     private List<GameObject> allBlocks;
     private List<GameObject> allBorders;
     private Assets assets;
+    private List<ParticleEffectPool.PooledEffect> pendingEffects;
     private Crillionic game;
 
     public LevelScreen(Crillionic game, Assets assets) {
@@ -54,6 +56,7 @@ public class LevelScreen implements Screen {
         batch = new SpriteBatch();
         backgroundBatch = new SpriteBatch();
         world = new World(new Vector2(0f, 0f), true);
+        pendingEffects = new ArrayList<ParticleEffectPool.PooledEffect>();
 
         Vector2 positionPlayer = new Vector2(0f, 3f);
         Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
@@ -62,7 +65,6 @@ public class LevelScreen implements Screen {
             @Override
             public void beginContact(Contact contact) {
                 System.out.println(contact.getFixtureA().getBody().getUserData());
-                WorldManifold manifold = contact.getWorldManifold();
                 // System.out.println(manifold.getNormal());
             }
 
@@ -77,6 +79,20 @@ public class LevelScreen implements Screen {
 
             @Override
             public void postSolve(Contact contact, ContactImpulse impulse) {
+                if (contact.getFixtureA() != null) {
+                    Object userData = contact.getFixtureA().getBody().getUserData();
+                    if (userData != null && userData instanceof String) {
+                        // This should be the id of GameObject
+                        GameObject block = findBlockObject((String) userData);
+                        if (block != null) {
+                            ParticleEffectPool.PooledEffect explosion = assets.getExplosionEffect();
+                            explosion.getEmitters().first().setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+                            explosion.setPosition(block.getPosition().x, block.getPosition().y);
+                            explosion.start();
+                            pendingEffects.add(explosion);
+                        }
+                    }
+                }
                 System.out.println("Normal impulses: " + impulse.getNormalImpulses().length);
                 for (float anImpulse : impulse.getNormalImpulses()) {
                     System.out.println(anImpulse);
@@ -89,6 +105,16 @@ public class LevelScreen implements Screen {
         Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, player));
         player.moveDown(4000);
     }
+
+    private GameObject findBlockObject(String id) {
+        for (GameObject block : allBlocks) {
+            if (block.getId().equals(id)) {
+                return block;
+            }
+        }
+        return null;
+    }
+
 
     private List<GameObject> createBorders() {
         // We need a border around the level to avoid that our player can "fall out of the screen"
@@ -182,19 +208,21 @@ public class LevelScreen implements Screen {
     @Override
     public void render(float delta) {
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
-        // ground.update();
-        // ground2.update();
         player.update();
 
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        for (ParticleEffect effect : pendingEffects) {
+            effect.update(Gdx.graphics.getDeltaTime());
+        }
         backgroundBatch.begin();
         backgroundBatch.draw(backgroundTexture, 0f, 0f);
         backgroundBatch.end();
-
         camera.position.x = player.getPosition().x;
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+
         batch.begin();
         player.getSprite().setColor(1f, 1f, 0f, 1f);
         player.getSprite().draw(batch);
@@ -204,7 +232,21 @@ public class LevelScreen implements Screen {
         for (GameObject border : allBorders) {
             border.getSprite().draw(batch);
         }
+        for (ParticleEffect effect : pendingEffects) {
+            effect.draw(batch, Gdx.graphics.getDeltaTime());
+        }
         batch.end();
+
+        List<ParticleEffect> effectsToRemove = new ArrayList<ParticleEffect>();
+        for (ParticleEffectPool.PooledEffect effect : pendingEffects) {
+            if (effect.isComplete()) {
+                assets.freeEffect(effect);
+                effectsToRemove.add(effect);
+            }
+        }
+        if (effectsToRemove.size() > 0) {
+            pendingEffects.removeAll(effectsToRemove);
+        }
     }
 
     @Override
@@ -229,6 +271,5 @@ public class LevelScreen implements Screen {
 
     @Override
     public void dispose() {
-
     }
 }
