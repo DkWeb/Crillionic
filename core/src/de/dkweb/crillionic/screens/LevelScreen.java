@@ -187,8 +187,11 @@ public class LevelScreen implements Screen {
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
                                         block.getColor(), new ColoredBlockCollisionHandler());
         } else if (BlockType.COLORIZE_BLOCKS.contains(block.getType())){
-            gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
+            gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.COLORIZE_BLOCK_TEXTURE)), body,
                     block.getColor(), new ColorizerBlockCollisionHandler());
+        } else if (BlockType.KILLER == block.getType()){
+            gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.KILL_BLOCK_TEXTURE)), body,
+                    block.getColor(), new DoNothingCollisionHandler());
         } else {
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
                     block.getColor(), new DoNothingCollisionHandler());

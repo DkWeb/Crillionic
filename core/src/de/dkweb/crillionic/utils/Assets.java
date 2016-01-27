@@ -14,6 +14,8 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 public class Assets {
 	public static final String BALL_TEXTURE = "ball_less_color.png";
 	public static final String BLOCK_TEXTURE = "block.png";
+	public static final String COLORIZE_BLOCK_TEXTURE = "colorize_block.png";
+	public static final String KILL_BLOCK_TEXTURE = "kill_block.png";
 	public static final String BORDER_TEXTURE = "wood.jpg";
     public static final String BACKGROUND = "background.jpg";
 
@@ -33,6 +35,8 @@ public class Assets {
 		loadTexture(BALL_TEXTURE);
 		loadTexture(BLOCK_TEXTURE);
 		loadTexture(BORDER_TEXTURE);
+		loadTexture(COLORIZE_BLOCK_TEXTURE);
+        loadTexture(KILL_BLOCK_TEXTURE);
 		loadTexture(BACKGROUND);
         loadParticleEffects();
 		assetManager.finishLoading();

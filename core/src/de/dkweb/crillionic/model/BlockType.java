@@ -201,7 +201,7 @@ public enum BlockType {
 
         @Override
         public Color getColor() {
-            return new Color(0f, 0f, 0f, ALPHA_VALUE);
+            return new Color(0xF44336AA);
         }
 
         @Override
