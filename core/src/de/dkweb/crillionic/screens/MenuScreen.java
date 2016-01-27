@@ -7,9 +7,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import de.dkweb.crillionic.Crillionic;
@@ -38,15 +40,14 @@ public class MenuScreen implements Screen {
                 .RGB888);
         pixmap.setColor(Color.WHITE);
         pixmap.fill();
-        skin.add("background", new Texture(pixmap));
-
+        skin.add("btnBackground", new Texture(pixmap));
 
         //Create a button style
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.newDrawable("background", Color.GRAY);
-        textButtonStyle.down = skin.newDrawable("background", Color.DARK_GRAY);
-        textButtonStyle.checked = skin.newDrawable("background", Color.DARK_GRAY);
-        textButtonStyle.over = skin.newDrawable("background", Color.LIGHT_GRAY);
+        textButtonStyle.up = skin.newDrawable("btnBackground", Color.GRAY);
+        textButtonStyle.down = skin.newDrawable("btnBackground", Color.DARK_GRAY);
+        textButtonStyle.checked = skin.newDrawable("btnBackground", Color.DARK_GRAY);
+        textButtonStyle.over = skin.newDrawable("btnBackground", Color.LIGHT_GRAY);
         textButtonStyle.font = skin.getFont("default");
         skin.add("default", textButtonStyle);
     }
@@ -55,6 +56,10 @@ public class MenuScreen implements Screen {
     public void show() {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
+
+        Image img = new Image(assets.getTexture(Assets.BACKGROUND));
+        img.setFillParent(true);
+        stage.addActor(img);
 
         createBasicSkin();
         TextButton newGameButton = new TextButton("New game", skin);
@@ -74,15 +79,7 @@ public class MenuScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         stage.act(Gdx.graphics.getDeltaTime());
-
-        stage.getBatch().begin();
-        stage.getBatch().draw(assets.getTexture("background.jpg"), 0, 0);
-        stage.getBatch().end();
-
-        stage.draw();
-        stage.act();
         stage.draw();
     }
 

@@ -217,7 +217,7 @@ public class LevelScreen implements Screen {
             effect.update(Gdx.graphics.getDeltaTime());
         }
         backgroundBatch.begin();
-        backgroundBatch.draw(backgroundTexture, 0f, 0f);
+        backgroundBatch.draw(backgroundTexture, 0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         backgroundBatch.end();
         camera.position.x = player.getPosition().x;
         camera.update();

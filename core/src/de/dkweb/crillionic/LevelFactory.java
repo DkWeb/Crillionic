@@ -27,11 +27,11 @@ public class LevelFactory {
         LevelMap map = null;
         InputStream inputStream = null;
         try {
-            FileHandle handle = Gdx.files.getFileHandle("map1.json", Files.FileType.Local);
-            inputStream = new FileInputStream(handle.file());
+            FileHandle handle = Gdx.files.getFileHandle("levels/map" + String.valueOf(levelNo) + ".json" , Files
+                    .FileType
+                    .Internal);
+            inputStream = handle.read();
             map = jsonManager.loadLevelMap(inputStream);
-        } catch (FileNotFoundException e) {
-            Gdx.app.log(GlobalConstants.APP_TAG, "Unable to open map file", e);
         } finally {
             if (inputStream != null) {
                 try {
