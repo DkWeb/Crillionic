@@ -3,16 +3,10 @@ package de.dkweb.crillionic;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.Vector2;
-import com.google.gson.Gson;
 import de.dkweb.crillionic.map.LevelMap;
-import de.dkweb.crillionic.map.MapObject;
-import de.dkweb.crillionic.model.BlockType;
 import de.dkweb.crillionic.utils.GlobalConstants;
 import de.dkweb.crillionic.utils.JsonManager;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 

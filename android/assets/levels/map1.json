@@ -2,13 +2,13 @@
 "levelId":1,
 "blocks": 
 {
-  "Block 1": {"id":"Block 1","type":"NORMAL","position":{"x": 0,"y":0}},
-  "Block 2": {"id":"Block 2","type":"NORMAL","position":{"x":-2,"y":0}},
-  "Block 3": {"id":"Block 3","type":"NORMAL","position":{"x": 2,"y":0}},
+  "Block 1": {"id":"Block 1","type":"NORMAL_BLOCK","position":{"x": 0,"y":0}},
+  "Block 2": {"id":"Block 2","type":"NORMAL_BLOCK","position":{"x":-2,"y":0}},
+  "Block 3": {"id":"Block 3","type":"NORMAL_BLOCK","position":{"x": 2,"y":0}},
   "Block 4": {"id":"Block 4","type":"COLORIZE_RED","position":{"x":  0,"y":-1}},
   "Block 5": {"id":"Block 5","type":"COLORIZE_BLUE","position":{"x": -2,"y":-1}},
   "Block 8": {"id":"Block 8","type":"COLORIZE_GREEN","position":{"x": -4,"y":-1}},
   "Block 6": {"id":"Block 6","type":"KILLER","position":{"x": 2,"y":1}},
-  "Block 7": {"id":"Block 7","type":"RED","position":{"x": 0,"y":1}}
+  "Block 7": {"id":"Block 7","type":"RED_BLOCK","position":{"x": 0,"y":1}}
 }
 }

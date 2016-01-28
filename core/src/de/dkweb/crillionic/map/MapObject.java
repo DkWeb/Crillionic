@@ -2,7 +2,7 @@ package de.dkweb.crillionic.map;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
-import de.dkweb.crillionic.model.BlockType;
+import de.dkweb.crillionic.model.GameObjectType;
 
 /**
  * Created by dirkweber
@@ -13,13 +13,13 @@ import de.dkweb.crillionic.model.BlockType;
 public class MapObject {
     private String id;
 
-    private BlockType type;
+    private GameObjectType type;
 
     // The position of this block
     // Be aware that this is the position of the center of the block in global coordinates
     private Vector2 position;
 
-    public MapObject(String id, BlockType type, Vector2 position) {
+    public MapObject(String id, GameObjectType type, Vector2 position) {
         this.id = id;
         this.type = type;
         this.position = position;
@@ -29,7 +29,7 @@ public class MapObject {
         return id;
     }
 
-    public BlockType getType() {
+    public GameObjectType getType() {
         return type;
     }
 
@@ -38,6 +38,6 @@ public class MapObject {
     }
 
     public Color getColor() {
-        return type.getColor();
+        return type.getDefaultColor();
     }
 }

@@ -4,12 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.utils.I18NBundle;
 
 public class Assets {
 	public static final String BALL_TEXTURE = "ball_less_color.png";
@@ -21,6 +23,7 @@ public class Assets {
 
     private static final String EFFECTS_FOLDER = "effects";
 	private static final String EXPLOSION_EFFECT = "explosion.p";
+    private static final String STRING_BUNDLE = "strings/strings";
 	private static final String STANDARD_FONT_NAME = "Roboto-Regular.ttf";
 	private static final int FONT_SIZE = 26;
 	private AssetManager assetManager;
@@ -39,6 +42,7 @@ public class Assets {
         loadTexture(KILL_BLOCK_TEXTURE);
 		loadTexture(BACKGROUND);
         loadParticleEffects();
+        loadStringBundle();
 		assetManager.finishLoading();
 		allLoaded = true;
 	}
@@ -56,7 +60,11 @@ public class Assets {
 		param.magFilter = TextureFilter.Linear;	
 		assetManager.load(path, Texture.class);
 	}
-	
+
+    private void loadStringBundle() {
+        assetManager.load(STRING_BUNDLE, I18NBundle.class);
+    }
+
 	public BitmapFont getStandardBitmapFont() {
 		return assetManager.get(STANDARD_FONT_NAME + ";" + String.valueOf(FONT_SIZE) + ";" + String.valueOf(false), GeneratedBitmapFont.class).getFont();		
 	}
@@ -86,5 +94,9 @@ public class Assets {
 
     public void freeEffect(ParticleEffectPool.PooledEffect effect) {
         explosionEffectPool.free(effect);
+    }
+
+    public I18NBundle getBundle() {
+        return assetManager.get(STRING_BUNDLE, I18NBundle.class);
     }
 }

@@ -9,10 +9,9 @@ import java.util.List;
 /**
  * Created by dirkweber
  *
- * Handles the collision of a "normal" colored block
- * If the player has the same color than the block, the block
- * vanishes and the player scores.
- * Whenever the player has the wrong color, nothing happens at all.
+ * Handles the collision of a "colorizer" block.
+ * Whenever the player touches such a block, he will be colorized with the color of the block.
+ * Afterwards he is able to destroy blocks of the very same color.
  *
  */
 public class ColorizerBlockCollisionHandler implements GameObjectCollisionHandler {

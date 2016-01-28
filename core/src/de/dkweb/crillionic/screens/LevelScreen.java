@@ -3,14 +3,10 @@ package de.dkweb.crillionic.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.ParticleEffectPool;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.viewport.FillViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.utils.viewport.*;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.LevelFactory;
 import de.dkweb.crillionic.events.ColoredBlockCollisionHandler;
@@ -20,9 +16,10 @@ import de.dkweb.crillionic.events.KillBlockCollisionHandler;
 import de.dkweb.crillionic.input.SimpleInputProcessor;
 import de.dkweb.crillionic.map.LevelMap;
 import de.dkweb.crillionic.map.MapObject;
-import de.dkweb.crillionic.model.BlockType;
+import de.dkweb.crillionic.model.GameObjectType;
 import de.dkweb.crillionic.model.GameObject;
 import de.dkweb.crillionic.model.GameStatistics;
+import de.dkweb.crillionic.render.StatisticRenderer;
 import de.dkweb.crillionic.utils.Assets;
 import de.dkweb.crillionic.utils.GlobalConstants;
 import de.dkweb.crillionic.utils.JsonManager;
@@ -34,7 +31,7 @@ import java.util.List;
  * Created by dirkweber
  */
 public class LevelScreen implements Screen {
-    private SpriteBatch backgroundBatch;
+    private SpriteBatch staticBatch;
     private SpriteBatch batch;
     private World world;
     private GameObject player;
@@ -56,13 +53,12 @@ public class LevelScreen implements Screen {
 
     @Override
     public void show() {
-        camera = new OrthographicCamera();
-        viewport = new FillViewport(GlobalConstants.WORLD_WIDTH_IN_UNITS, GlobalConstants.WORLD_HEIGHT_IN_UNITS,
-                camera);
-
+        camera = new OrthographicCamera(calculateNonDistortingWidth(), GlobalConstants.WORLD_HEIGHT_IN_UNITS);
+        viewport = new FitViewport(calculateNonDistortingWidth(), GlobalConstants.WORLD_HEIGHT_IN_UNITS,
+                                    camera);
         backgroundTexture = assets.getTexture(Assets.BACKGROUND);
         batch = new SpriteBatch();
-        backgroundBatch = new SpriteBatch();
+        staticBatch = new SpriteBatch();
         world = new World(new Vector2(0f, 0f), true);
         pendingEffects = new ArrayList<ParticleEffectPool.PooledEffect>();
         toRemove = new ArrayList<GameObject>();
@@ -71,7 +67,7 @@ public class LevelScreen implements Screen {
         Vector2 positionPlayer = new Vector2(0f, 3f);
         Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
         player = new GameObject(GlobalConstants.PLAYER_ID, new Sprite(assets.getTexture(Assets.BALL_TEXTURE)), bodyPlayer,
-                                Color.GREEN, new DoNothingCollisionHandler());
+                                Color.GREEN, GameObjectType.PLAYER, new DoNothingCollisionHandler());
         world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
@@ -148,21 +144,22 @@ public class LevelScreen implements Screen {
         Body body = definePhysicsObject(new Vector2(0f, GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2),
                 verticesBorderHorizontal, BodyDef.BodyType.StaticBody, 1f);
         borders.add(new GameObject("Border top", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body,
-                                    null, new DoNothingCollisionHandler()));
+                                    null, GameObjectType.BORDER, new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(0f, -1 * (GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2)),
                 verticesBorderHorizontal, BodyDef.BodyType.StaticBody, 1f);
         borders.add(new GameObject("Border bottom", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null,
-                                    new DoNothingCollisionHandler()));
+                                    GameObjectType.BORDER, new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(-1 * (GlobalConstants.WORLD_WIDTH_IN_UNITS / 2), 0f),
                 verticesBorderVertical, BodyDef.BodyType.StaticBody, 1f);
         borders.add(new GameObject("Border left", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null,
-                                    new DoNothingCollisionHandler()));
+                                    GameObjectType.BORDER, new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(GlobalConstants.WORLD_WIDTH_IN_UNITS / 2, 0f),
                 verticesBorderVertical, BodyDef.BodyType.StaticBody, 1f);
-        borders.add(new GameObject("Border right", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null, new DoNothingCollisionHandler()));
+        borders.add(new GameObject("Border right", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null,
+                                    GameObjectType.BORDER, new DoNothingCollisionHandler()));
 
         return borders;
     }
@@ -184,18 +181,22 @@ public class LevelScreen implements Screen {
     private GameObject createBlockObject(MapObject block, Vector2[] verticesBlock) {
         GameObject gameObject = null;
         Body body = definePhysicsObject(block.getPosition(), verticesBlock, BodyDef.BodyType.StaticBody, 1f);
-        if (BlockType.COLORED_BLOCKS.contains(block.getType())) {
+        if (GameObjectType.COLORED_BLOCKS.contains(block.getType())) {
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
-                                        block.getColor(), new ColoredBlockCollisionHandler());
-        } else if (BlockType.COLORIZE_BLOCKS.contains(block.getType())){
+                                        block.getColor(), GameObjectType.getColoredBlockFor(block.getColor()),
+                                        new ColoredBlockCollisionHandler());
+        } else if (GameObjectType.COLORIZE_BLOCKS.contains(block.getType())){
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.COLORIZE_BLOCK_TEXTURE)), body,
-                    block.getColor(), new ColorizerBlockCollisionHandler());
-        } else if (BlockType.KILLER == block.getType()){
+                    block.getColor(), GameObjectType.getColoredBlockFor(block.getColor()),
+                    new ColorizerBlockCollisionHandler());
+        } else if (GameObjectType.KILLER == block.getType()){
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.KILL_BLOCK_TEXTURE)), body,
-                    block.getColor(), new KillBlockCollisionHandler());
+                    block.getColor(), GameObjectType.getColoredBlockFor(block.getColor()),
+                    new KillBlockCollisionHandler());
         } else {
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
-                    block.getColor(), new DoNothingCollisionHandler());
+                    block.getColor(), GameObjectType.getColoredBlockFor(block.getColor()),
+                    new DoNothingCollisionHandler());
         }
         return gameObject;
     }
@@ -246,13 +247,13 @@ public class LevelScreen implements Screen {
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         for (ParticleEffect effect : pendingEffects) {
             effect.update(Gdx.graphics.getDeltaTime());
         }
-        backgroundBatch.begin();
-        backgroundBatch.draw(backgroundTexture, 0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        backgroundBatch.end();
+        staticBatch.begin();
+        staticBatch.draw(backgroundTexture, 0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
+        staticBatch.end();
         camera.position.x = player.getPosition().x;
         camera.update();
         batch.setProjectionMatrix(camera.combined);
@@ -269,6 +270,9 @@ public class LevelScreen implements Screen {
             effect.draw(batch, Gdx.graphics.getDeltaTime());
         }
         batch.end();
+        staticBatch.begin();
+        new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
+        staticBatch.end();
 
         removeOutdatedParticleEffects();
         removeElementsFromWorld();
@@ -296,6 +300,7 @@ public class LevelScreen implements Screen {
                         world.destroyBody(oneToRemove.getBody());
                         if (oneToRemove.getId().equals(GlobalConstants.PLAYER_ID)) {
                             if (gameStatistics.getLifes() == 0) {
+                                LevelScreen.this.dispose();
                                 game.openMainMenu();
                             }
                         }
@@ -310,6 +315,14 @@ public class LevelScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
+    }
+
+    /**
+     * We want that there is no vertical scrolling -> we must calculate the width according to the available screen
+     * height
+     */
+    private float calculateNonDistortingWidth() {
+        return (Gdx.graphics.getWidth() * GlobalConstants.WORLD_HEIGHT_IN_UNITS) / Gdx.graphics.getHeight();
     }
 
     @Override
@@ -329,5 +342,11 @@ public class LevelScreen implements Screen {
 
     @Override
     public void dispose() {
+        staticBatch.dispose();
+        batch.dispose();
+        for (ParticleEffectPool.PooledEffect effect : pendingEffects) {
+            assets.freeEffect(effect);
+        }
+        world.dispose();
     }
 }

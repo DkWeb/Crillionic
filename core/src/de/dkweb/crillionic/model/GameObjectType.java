@@ -1,6 +1,8 @@
 package de.dkweb.crillionic.model;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import de.dkweb.crillionic.utils.GlobalConstants;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,17 +10,17 @@ import java.util.List;
 /**
  * Created by dirkweber
  *
- * The various types of blocks
+ * The various types of game objects
  */
-public enum BlockType {
-    NORMAL {
+public enum GameObjectType {
+    NORMAL_BLOCK {
         @Override
         public int getScore() {
             return 0;
         }
 
         @Override
-        public Color getColor() {
+        public Color getDefaultColor() {
             return Color.GRAY;
         }
 
@@ -44,7 +46,7 @@ public enum BlockType {
         }
 
         @Override
-        public Color getColor() {
+        public Color getDefaultColor() {
             return new Color(1f, 0f, 0f, ALPHA_VALUE);
         }
 
@@ -70,7 +72,7 @@ public enum BlockType {
         }
 
         @Override
-        public Color getColor() {
+        public Color getDefaultColor() {
             return new Color(0f, 0f, 1f, ALPHA_VALUE);
         }
 
@@ -96,7 +98,7 @@ public enum BlockType {
         }
 
         @Override
-        public Color getColor() {
+        public Color getDefaultColor() {
             return new Color(0f, 1f, 0f, ALPHA_VALUE);
         }
 
@@ -115,14 +117,14 @@ public enum BlockType {
             return true;
         }
     },
-    RED {
+    RED_BLOCK {
         @Override
         public int getScore() {
             return SCORE_PER_BLOCK;
         }
 
         @Override
-        public Color getColor() {
+        public Color getDefaultColor() {
             return new Color(1f, 0f, 0f, ALPHA_VALUE);
         }
 
@@ -141,14 +143,14 @@ public enum BlockType {
             return false;
         }
     },
-    GREEN {
+    GREEN_BLOCK {
         @Override
         public int getScore() {
             return SCORE_PER_BLOCK;
         }
 
         @Override
-        public Color getColor() {
+        public Color getDefaultColor() {
             return new Color(0f, 0f, 1f, ALPHA_VALUE);
         }
 
@@ -167,14 +169,14 @@ public enum BlockType {
             return false;
         }
     },
-    BLUE {
+    BLUE_BLOCK {
         @Override
         public int getScore() {
             return SCORE_PER_BLOCK;
         }
 
         @Override
-        public Color getColor() {
+        public Color getDefaultColor() {
             return new Color(0f, 0f, 0f, ALPHA_VALUE);
         }
 
@@ -200,7 +202,7 @@ public enum BlockType {
         }
 
         @Override
-        public Color getColor() {
+        public Color getDefaultColor() {
             return new Color(0xF44336AA);
         }
 
@@ -218,17 +220,78 @@ public enum BlockType {
         public boolean isColorizing() {
             return false;
         }
-    };
+    },
+    PLAYER {
+        @Override
+        public int getScore() {
+            return 0;
+        }
 
-    public final static List<BlockType> COLORED_BLOCKS = Arrays.asList(new BlockType[] { RED, GREEN, BLUE });
-    public final static List<BlockType> COLORIZE_BLOCKS = Arrays.asList(new BlockType[] { COLORIZE_RED, COLORIZE_GREEN,
+        @Override
+        public Color getDefaultColor() {
+            return null;
+        }
+
+        @Override
+        public boolean canBeDestroyed() {
+            return false;
+        }
+
+        @Override
+        public boolean destroysPlayer() {
+            return false;
+        }
+
+        @Override
+        public boolean isColorizing() {
+            return false;
+        }
+    },
+    BORDER {
+        @Override
+        public int getScore() {
+            return 0;
+        }
+
+        @Override
+        public Color getDefaultColor() {
+            return null;
+        }
+
+        @Override
+        public boolean canBeDestroyed() {
+            return false;
+        }
+
+        @Override
+        public boolean destroysPlayer() {
+            return false;
+        }
+
+        @Override
+        public boolean isColorizing() {
+            return false;
+        }
+    };
+    public final static List<GameObjectType> COLORED_BLOCKS = Arrays.asList(new GameObjectType[] {RED_BLOCK, GREEN_BLOCK, BLUE_BLOCK});
+    public final static List<GameObjectType> COLORIZE_BLOCKS = Arrays.asList(new GameObjectType[] { COLORIZE_RED, COLORIZE_GREEN,
                                                                                         COLORIZE_BLUE });
 
     private final static int SCORE_PER_BLOCK = 1000;
     private final static float ALPHA_VALUE = 0.8f;
     public abstract int getScore();
-    public abstract Color getColor();
+    public abstract Color getDefaultColor();
     public abstract boolean canBeDestroyed();
     public abstract boolean destroysPlayer();
     public abstract boolean isColorizing();
+
+    public static GameObjectType getColoredBlockFor(Color color) {
+        for (GameObjectType type : COLORED_BLOCKS) {
+            if (type.getDefaultColor().equals(color)) {
+                return type;
+            }
+        }
+        Gdx.app.log(GlobalConstants.APP_TAG, "Unable to find colored block for color " + color.toString());
+        return null;
+    }
 }

@@ -9,11 +9,8 @@ import java.util.List;
 /**
  * Created by dirkweber
  *
- * Handles the collision of a "normal" colored block
- * If the player has the same color than the block, the block
- * vanishes and the player scores.
- * Whenever the player has the wrong color, nothing happens at all.
- *
+ * Handles the collision of a "killer" block
+ * If the player touches such a block, he will lose one life.
  */
 public class KillBlockCollisionHandler implements GameObjectCollisionHandler {
     @Override

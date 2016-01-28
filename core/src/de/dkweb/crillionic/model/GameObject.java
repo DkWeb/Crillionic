@@ -21,20 +21,24 @@ public class GameObject {
     private Body body;
     private GameObjectCollisionHandler collisionHandler;
     private Color color;
+    private GameObjectType type;
 
-    public GameObject(String id, Sprite sprite, Body body, Color color,
+    public GameObject(String id, Sprite sprite, Body body, Color overwriteColor, GameObjectType type,
                       GameObjectCollisionHandler collisionHandler) {
         this.id = id;
         this.sprite = sprite;
-        this.color = color;
+        this.color = overwriteColor;
         this.body = body;
         this.body.setUserData(id);
         this.collisionHandler = collisionHandler;
+        this.type = type;
         sprite.setSize(getMaxWidth(), getMaxHeight());
         sprite.setCenter(body.getPosition().x, body.getPosition().y);
         sprite.setOriginCenter();
-        if (color != null) {
-            sprite.setColor(color);
+        if (overwriteColor == null && type.getDefaultColor() != null) {
+            sprite.setColor(type.getDefaultColor());
+        } else if (overwriteColor != null) {
+            sprite.setColor(overwriteColor);
         }
     }
 
@@ -153,5 +157,9 @@ public class GameObject {
     public void changeColor(Color color) {
         this.color = color;
         sprite.setColor(color);
+    }
+
+    public GameObjectType getType() {
+        return type;
     }
 }

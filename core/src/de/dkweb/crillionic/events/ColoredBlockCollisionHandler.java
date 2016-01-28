@@ -24,7 +24,7 @@ public class ColoredBlockCollisionHandler implements GameObjectCollisionHandler 
                             GameStatistics gameStatistics) {
         if (GlobalConstants.PLAYER_ID.equals(collidedWith.getId())) {
             if (sameColorIgnoreAlpha(collidedWith.getColor(), thisObject.getColor())) {
-                gameStatistics.increaseScore(10);
+                gameStatistics.increaseScore(thisObject.getType().getScore());
                 removals.add(thisObject);
                 return true;
             }
