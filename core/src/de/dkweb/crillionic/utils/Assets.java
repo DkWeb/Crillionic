@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 
 public class Assets {
 	public static final String BALL_TEXTURE = "ball_less_color.png";
+    public static final String NORMAL_BLOCK_TEXTURE = "normal_block.png";
 	public static final String BLOCK_TEXTURE = "block.png";
 	public static final String COLORIZE_BLOCK_TEXTURE = "colorize_block.png";
 	public static final String KILL_BLOCK_TEXTURE = "kill_block.png";
@@ -37,6 +38,7 @@ public class Assets {
 		loadAllFonts();
 		loadTexture(BALL_TEXTURE);
 		loadTexture(BLOCK_TEXTURE);
+        loadTexture(NORMAL_BLOCK_TEXTURE);
 		loadTexture(BORDER_TEXTURE);
 		loadTexture(COLORIZE_BLOCK_TEXTURE);
         loadTexture(KILL_BLOCK_TEXTURE);

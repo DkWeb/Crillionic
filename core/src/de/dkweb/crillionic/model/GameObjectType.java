@@ -22,7 +22,7 @@ public enum GameObjectType {
 
         @Override
         public Color getDefaultColor() {
-            return Color.GRAY;
+            return null;
         }
 
         @Override
@@ -278,7 +278,7 @@ public enum GameObjectType {
     public final static List<GameObjectType> COLORIZE_BLOCKS = Arrays.asList(new GameObjectType[] { COLORIZE_RED, COLORIZE_GREEN, COLORIZE_BLUE });
 
     private final static int SCORE_PER_BLOCK = 1000;
-    private final static float ALPHA_VALUE = 0.8f;
+    private final static float ALPHA_VALUE = 0.5f;
     public abstract int getScore();
     public abstract Color getDefaultColor();
     public abstract boolean canBeDestroyed();
