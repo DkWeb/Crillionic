@@ -14,10 +14,7 @@ import java.io.OutputStream;
  * Created by dirkweber
  */
 public class HighscoreManager {
-    public boolean addEntry(int achievedScore, JsonManager jsonManager) {
-        if (achievedScore == 0) {
-            return false;
-        }
+    public Highscore getHighscore(JsonManager jsonManager) {
         InputStream inputStream = null;
         Highscore currentHighscore;
         try {
@@ -37,6 +34,13 @@ public class HighscoreManager {
                 }
             }
         }
+        return currentHighscore;
+    }
+    public boolean addEntry(int achievedScore, JsonManager jsonManager) {
+        if (achievedScore == 0) {
+            return false;
+        }
+        Highscore currentHighscore = getHighscore(jsonManager);
         if (currentHighscore == null) {
             Gdx.app.error(GlobalConstants.APP_TAG, "Unable to read out current highscores from file. Abort");
             return false;
