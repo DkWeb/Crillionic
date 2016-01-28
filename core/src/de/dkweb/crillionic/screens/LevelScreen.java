@@ -71,8 +71,6 @@ public class LevelScreen implements Screen {
         world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
-                System.out.println(contact.getFixtureA().getBody().getUserData());
-                // System.out.println(manifold.getNormal());
             }
 
             @Override
@@ -81,7 +79,6 @@ public class LevelScreen implements Screen {
 
             @Override
             public void preSolve(Contact contact, Manifold oldManifold) {
-
             }
 
             @Override
@@ -104,17 +101,19 @@ public class LevelScreen implements Screen {
                         }
                     }
                 }
-                System.out.println("Normal impulses: " + impulse.getNormalImpulses().length);
-                for (float anImpulse : impulse.getNormalImpulses()) {
-                    System.out.println(anImpulse);
-                }
+                System.out.println("Velocity: " + player.getBody().getLinearVelocity().len());
+                System.out.println("Velocity x: " + player.getBody().getLinearVelocity().x);
+                System.out.println("Velocity y: " + player.getBody().getLinearVelocity().y);
             }
         });
 
         allBlocks = createBlocks(1, new JsonManager());
         allBorders = createBorders();
         Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, player));
-        player.moveDown(4000);
+        System.out.println("Velocity: " + player.getBody().getLinearVelocity().len());
+        System.out.println("Velocity x: " + player.getBody().getLinearVelocity().x);
+        System.out.println("Velocity y: " + player.getBody().getLinearVelocity().y);
+        player.moveDown(2000);
     }
 
     private GameObject findBlockObject(String id) {
@@ -142,7 +141,7 @@ public class LevelScreen implements Screen {
                 new Vector2(0.1f, 1 * (GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2))};
 
         Body body = definePhysicsObject(new Vector2(0f, GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2),
-                verticesBorderHorizontal, BodyDef.BodyType.StaticBody, 1f);
+                verticesBorderHorizontal, BodyDef.BodyType.StaticBody, 0.8f);
         borders.add(new GameObject("Border top", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body,
                                     null, GameObjectType.BORDER, new DoNothingCollisionHandler()));
 
@@ -187,16 +186,14 @@ public class LevelScreen implements Screen {
                                         new ColoredBlockCollisionHandler());
         } else if (GameObjectType.COLORIZE_BLOCKS.contains(block.getType())){
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.COLORIZE_BLOCK_TEXTURE)), body,
-                    block.getColor(), GameObjectType.getColoredBlockFor(block.getColor()),
+                    block.getColor(), GameObjectType.getColorizeBlockFor(block.getColor()),
                     new ColorizerBlockCollisionHandler());
         } else if (GameObjectType.KILLER == block.getType()){
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.KILL_BLOCK_TEXTURE)), body,
-                    block.getColor(), GameObjectType.getColoredBlockFor(block.getColor()),
-                    new KillBlockCollisionHandler());
+                    block.getColor(), GameObjectType.KILLER, new KillBlockCollisionHandler());
         } else {
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
-                    block.getColor(), GameObjectType.getColoredBlockFor(block.getColor()),
-                    new DoNothingCollisionHandler());
+                    block.getColor(), GameObjectType.NORMAL_BLOCK, new DoNothingCollisionHandler());
         }
         return gameObject;
     }
@@ -239,9 +236,19 @@ public class LevelScreen implements Screen {
         return targetBody;
     }
 
+    private void ensureSpeedLimit() {
+        Body playerBody = player.getBody();
+        Vector2 playerSpeed = player.getBody().getLinearVelocity();
+        float speed = playerSpeed.len();
+        if (speed > GlobalConstants.MAX_SPEED_IN_UNITS_PER_RENDER) {
+            playerBody.setLinearVelocity(playerSpeed.nor().scl(GlobalConstants.MAX_SPEED_IN_UNITS_PER_RENDER));
+        }
+    }
 
     @Override
     public void render(float delta) {
+        // Make sure that the player doesn't exceed a maximum speed
+        ensureSpeedLimit();
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
         player.update();
 

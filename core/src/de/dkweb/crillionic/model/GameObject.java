@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import de.dkweb.crillionic.events.DoNothingCollisionHandler;
 import de.dkweb.crillionic.events.GameObjectCollisionHandler;
+import de.dkweb.crillionic.utils.GlobalConstants;
 
 import java.util.List;
 
@@ -67,20 +68,32 @@ public class GameObject {
         return (float) ((Math.PI * degree) / 180);
     }
 
+    private void moveBody(Body body, float forceX, float forceY) {
+        if (forceX != 0 || forceY != 0) {
+            body.applyForceToCenter(forceX, forceY, true);
+        }
+    }
+
+    public void move(float forceX, float forceY) {
+        if (forceX != 0 || forceY != 0) {
+            body.applyForceToCenter(forceX, forceY, true);
+        }
+    }
+
     public void moveLeft(float forceInNewton) {
-        body.applyForceToCenter(-1 * forceInNewton, 0f, true);
+        moveBody(body, -1 * forceInNewton, 0f);
     }
 
     public void moveRight(float forceInNewton) {
-        body.applyForceToCenter(forceInNewton, 0f, true);
+        moveBody(body, forceInNewton, 0f);
     }
 
     public void moveDown(float forceInNewton) {
-        body.applyForceToCenter(0f, -1 * forceInNewton, true);
+        moveBody(body, 0f, -1 * forceInNewton);
     }
 
     public void moveUp(float forceInNewton) {
-        body.applyForceToCenter(0f, forceInNewton, true);
+        moveBody(body, 0f, forceInNewton);
     }
 
     public void rotate(float degree) {

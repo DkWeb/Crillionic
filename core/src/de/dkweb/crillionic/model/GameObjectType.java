@@ -1,5 +1,6 @@
 package de.dkweb.crillionic.model;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import de.dkweb.crillionic.utils.GlobalConstants;
@@ -274,8 +275,7 @@ public enum GameObjectType {
         }
     };
     public final static List<GameObjectType> COLORED_BLOCKS = Arrays.asList(new GameObjectType[] {RED_BLOCK, GREEN_BLOCK, BLUE_BLOCK});
-    public final static List<GameObjectType> COLORIZE_BLOCKS = Arrays.asList(new GameObjectType[] { COLORIZE_RED, COLORIZE_GREEN,
-                                                                                        COLORIZE_BLUE });
+    public final static List<GameObjectType> COLORIZE_BLOCKS = Arrays.asList(new GameObjectType[] { COLORIZE_RED, COLORIZE_GREEN, COLORIZE_BLUE });
 
     private final static int SCORE_PER_BLOCK = 1000;
     private final static float ALPHA_VALUE = 0.8f;
@@ -292,6 +292,16 @@ public enum GameObjectType {
             }
         }
         Gdx.app.log(GlobalConstants.APP_TAG, "Unable to find colored block for color " + color.toString());
+        return null;
+    }
+
+    public static GameObjectType getColorizeBlockFor(Color color) {
+        for (GameObjectType type : COLORIZE_BLOCKS) {
+            if (type.getDefaultColor().equals(color)) {
+                return type;
+            }
+        }
+        Gdx.app.log(GlobalConstants.APP_TAG, "Unable to find colorize block for color " + color.toString());
         return null;
     }
 }

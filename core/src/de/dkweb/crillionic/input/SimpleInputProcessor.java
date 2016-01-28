@@ -14,6 +14,8 @@ import de.dkweb.crillionic.model.GameObject;
 public class SimpleInputProcessor implements InputProcessor {
     private Camera camera;
     private GameObject player;
+    private Integer startDragX;
+    private Integer startDragY;
 
     public SimpleInputProcessor(Camera camera, GameObject player) {
         this.camera = camera;
@@ -45,15 +47,15 @@ public class SimpleInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+/*        Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
         if (worldCoords.x < player.getPosition().x) {
             float factor = getNormalizedXDistance(player, screenX, 0);
             player.moveLeft(factor * 200f);
         } else {
             float factor = getNormalizedXDistance(player, screenX, Gdx.graphics.getWidth());
             player.moveRight(factor * 200f);
-        }
-        return true;
+        }*/
+        return false;
     }
 
     private Vector2 getScreenPosition(Vector2 worldPosition) {
@@ -72,12 +74,38 @@ public class SimpleInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (startDragX != null || startDragY != null) {
+            Vector2 dragVector = new Vector2(screenX - startDragX, screenY - startDragY);
+            // We have to switch signs for the y axis because the screen has an y-down
+            // and the world an y-up coordinate system
+            player.move(dragVector.x, -1 * dragVector.y);
+            startDragX = null;
+            startDragY = null;
+        }
         return false;
+    }
+
+    private int getMaximumVectorLength() {
+        return Gdx.graphics.getWidth() / 5;
+    }
+
+    private float getNormalizedDistance(int screenDistance) {
+        float maxScreenDistance = Gdx.graphics.getWidth() / 4f;
+        if (screenDistance > maxScreenDistance) {
+            return 1.0f;
+        }
+        return screenDistance / maxScreenDistance;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
+        if (startDragX == null) {
+            startDragX = screenX;
+        }
+        if (startDragY == null) {
+            startDragY = screenY;
+        }
+        return true;
     }
 
     @Override
