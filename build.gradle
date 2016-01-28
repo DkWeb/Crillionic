@@ -9,9 +9,14 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.github.hierynomus.license" version "0.12.1"
+}
+
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
+    apply plugin: "com.github.hierynomus.license"
 
     version = '1.0'
     ext {
@@ -27,6 +32,12 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+    }
+
+    license {
+        header = file('../LICENSE')
+        ext.year = Calendar.getInstance().get(Calendar.YEAR)
+        ext.name = 'Dirk Weber'
     }
 }
 
