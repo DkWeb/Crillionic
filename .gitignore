@@ -29,6 +29,9 @@ android/gen/
 out/
 com_crashlytics_export_strings.xml
 
+## Project files to be ignored
+highscore.json
+
 ## Eclipse
 .classpath
 .project

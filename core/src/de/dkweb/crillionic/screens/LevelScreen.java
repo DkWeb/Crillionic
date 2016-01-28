@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.*;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.LevelFactory;
@@ -22,6 +23,7 @@ import de.dkweb.crillionic.model.GameStatistics;
 import de.dkweb.crillionic.render.StatisticRenderer;
 import de.dkweb.crillionic.utils.Assets;
 import de.dkweb.crillionic.utils.GlobalConstants;
+import de.dkweb.crillionic.utils.HighscoreManager;
 import de.dkweb.crillionic.utils.JsonManager;
 
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ public class LevelScreen implements Screen {
     private List<GameObject> toRemove;
     private GameStatistics gameStatistics;
     private Crillionic game;
+    private JsonManager jsonManager;
 
     public LevelScreen(Crillionic game, Assets assets) {
         this.game = game;
@@ -56,18 +59,15 @@ public class LevelScreen implements Screen {
         camera = new OrthographicCamera(calculateNonDistortingWidth(), GlobalConstants.WORLD_HEIGHT_IN_UNITS);
         viewport = new FitViewport(calculateNonDistortingWidth(), GlobalConstants.WORLD_HEIGHT_IN_UNITS,
                                     camera);
+        jsonManager = new JsonManager();
         backgroundTexture = assets.getTexture(Assets.BACKGROUND);
         batch = new SpriteBatch();
         staticBatch = new SpriteBatch();
         world = new World(new Vector2(0f, 0f), true);
         pendingEffects = new ArrayList<ParticleEffectPool.PooledEffect>();
         toRemove = new ArrayList<GameObject>();
-        gameStatistics = new GameStatistics(0, 1, 1);
-
-        Vector2 positionPlayer = new Vector2(0f, 3f);
-        Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
-        player = new GameObject(GlobalConstants.PLAYER_ID, new Sprite(assets.getTexture(Assets.BALL_TEXTURE)), bodyPlayer,
-                                Color.GREEN, GameObjectType.PLAYER, new DoNothingCollisionHandler());
+        gameStatistics = new GameStatistics(0, 1, 3);
+        player = recreatePlayer();
         world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact contact) {
@@ -107,13 +107,22 @@ public class LevelScreen implements Screen {
             }
         });
 
-        allBlocks = createBlocks(1, new JsonManager());
+        allBlocks = createBlocks(1, jsonManager);
         allBorders = createBorders();
         Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, player));
         System.out.println("Velocity: " + player.getBody().getLinearVelocity().len());
         System.out.println("Velocity x: " + player.getBody().getLinearVelocity().x);
         System.out.println("Velocity y: " + player.getBody().getLinearVelocity().y);
         player.moveDown(2000);
+    }
+
+    private GameObject recreatePlayer() {
+        Vector2 positionPlayer = new Vector2(0f, 3f);
+        Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
+        GameObject player = new GameObject(GlobalConstants.PLAYER_ID, new Sprite(assets.getTexture(Assets.BALL_TEXTURE)), bodyPlayer,
+                                            Color.GREEN, GameObjectType.PLAYER, new DoNothingCollisionHandler());
+        player.moveDown(2000);
+        return player;
     }
 
     private GameObject findBlockObject(String id) {
@@ -306,10 +315,20 @@ public class LevelScreen implements Screen {
                     for (GameObject oneToRemove : toRemove) {
                         world.destroyBody(oneToRemove.getBody());
                         if (oneToRemove.getId().equals(GlobalConstants.PLAYER_ID)) {
-                            if (gameStatistics.getLifes() == 0) {
-                                LevelScreen.this.dispose();
-                                game.openMainMenu();
-                            }
+                            // The player has already been removed from the physics, but let him still be visible for
+                            // some seconds, so that he can "explode". Afterwards we can show some message
+                            Timer.schedule(new Timer.Task() {
+                                @Override
+                                public void run() {
+                                    if (gameStatistics.getLifes() == 0) {
+                                        LevelScreen.this.dispose();
+                                        new HighscoreManager().addEntry(gameStatistics.getScore(), jsonManager);
+                                        game.openMainMenu();
+                                    } else {
+                                        recreatePlayer();
+                                    }
+                                }
+                            }, 2);
                         }
                     }
                     allBlocks.removeAll(toRemove);

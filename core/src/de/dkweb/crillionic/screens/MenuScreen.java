@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.utils.Assets;
 
@@ -33,10 +34,10 @@ public class MenuScreen implements Screen {
 
     private void createBasicSkin() {
         skin = new Skin();
-        skin.add("default", assets.getStandardBitmapFont());
+        skin.add("default", assets.getBigBitmapFont());
 
         //Create a texture
-        Pixmap pixmap = new Pixmap((int) Gdx.graphics.getWidth()/4, (int) Gdx.graphics.getHeight()/10, Pixmap.Format
+        Pixmap pixmap = new Pixmap((int) Gdx.graphics.getWidth()/2, (int) Gdx.graphics.getHeight()/5, Pixmap.Format
                 .RGB888);
         pixmap.setColor(Color.WHITE);
         pixmap.fill();
@@ -54,7 +55,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void show() {
-        stage = new Stage();
+        stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
         Image img = new Image(assets.getTexture(Assets.BACKGROUND));
@@ -63,7 +64,8 @@ public class MenuScreen implements Screen {
 
         createBasicSkin();
         TextButton newGameButton = new TextButton("New game", skin);
-        newGameButton.setPosition(Gdx.graphics.getWidth() / 2 - Gdx.graphics.getWidth() / 8, Gdx.graphics.getHeight() / 2);
+        newGameButton.setPosition(Gdx.graphics.getWidth() / 2 - Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight()
+                / 2);
         newGameButton.addListener(new InputListener() {
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 game.startLevel();

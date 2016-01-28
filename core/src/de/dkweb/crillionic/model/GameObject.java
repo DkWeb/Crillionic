@@ -80,6 +80,16 @@ public class GameObject {
         }
     }
 
+    public void moveToAbsolutePosition(int x, int y) {
+        body.getPosition().x = x;
+        body.getPosition().y = y;
+    }
+
+    public void setAbsoluteSpeed(float unitsPerRender) {
+        Vector2 speed = body.getLinearVelocity();
+        body.setLinearVelocity(speed.nor().scl(unitsPerRender));
+    }
+
     public void moveLeft(float forceInNewton) {
         moveBody(body, -1 * forceInNewton, 0f);
     }

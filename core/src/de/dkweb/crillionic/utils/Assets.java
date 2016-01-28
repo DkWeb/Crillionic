@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -25,7 +24,8 @@ public class Assets {
 	private static final String EXPLOSION_EFFECT = "explosion.p";
     private static final String STRING_BUNDLE = "strings/strings";
 	private static final String STANDARD_FONT_NAME = "Roboto-Regular.ttf";
-	private static final int FONT_SIZE = 26;
+	private static final int DEFAULT_FONT_SIZE = 26;
+    private static final int BIG_FONT_SIZE = 48;
 	private AssetManager assetManager;
 	private boolean allLoaded;
     private ParticleEffectPool explosionEffectPool;
@@ -66,8 +66,12 @@ public class Assets {
     }
 
 	public BitmapFont getStandardBitmapFont() {
-		return assetManager.get(STANDARD_FONT_NAME + ";" + String.valueOf(FONT_SIZE) + ";" + String.valueOf(false), GeneratedBitmapFont.class).getFont();		
+		return assetManager.get(STANDARD_FONT_NAME + ";" + String.valueOf(DEFAULT_FONT_SIZE) + ";" + String.valueOf(false), GeneratedBitmapFont.class).getFont();
 	}
+
+    public BitmapFont getBigBitmapFont() {
+        return assetManager.get(STANDARD_FONT_NAME + ";" + String.valueOf(BIG_FONT_SIZE) + ";" + String.valueOf(false), GeneratedBitmapFont.class).getFont();
+    }
 	
 	private void createFontInMemory(int pixelSize, String fontName, boolean flipped) {
 		FreeTypeFontGenerator.FreeTypeFontParameter fontDesc = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -77,7 +81,8 @@ public class Assets {
 	}	
 	
 	private void loadAllFonts() {
-		createFontInMemory(FONT_SIZE, STANDARD_FONT_NAME, false);
+		createFontInMemory(DEFAULT_FONT_SIZE, STANDARD_FONT_NAME, false);
+        createFontInMemory(BIG_FONT_SIZE, STANDARD_FONT_NAME, false);
 	}
 	
 	public Texture getTexture(String name) {
