@@ -6,10 +6,12 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.*;
 import de.dkweb.crillionic.Crillionic;
-import de.dkweb.crillionic.LevelFactory;
+import de.dkweb.crillionic.utils.LevelFactory;
 import de.dkweb.crillionic.events.ColoredBlockCollisionHandler;
 import de.dkweb.crillionic.events.ColorizerBlockCollisionHandler;
 import de.dkweb.crillionic.events.DoNothingCollisionHandler;
@@ -48,6 +50,7 @@ public class LevelScreen implements Screen {
     private GameStatistics gameStatistics;
     private Crillionic game;
     private JsonManager jsonManager;
+    private boolean levelCompleted;
 
     public LevelScreen(Crillionic game, Assets assets) {
         this.game = game;
@@ -60,13 +63,13 @@ public class LevelScreen implements Screen {
         viewport = new FitViewport(calculateNonDistortingWidth(), GlobalConstants.WORLD_HEIGHT_IN_UNITS,
                                     camera);
         jsonManager = new JsonManager();
+        gameStatistics = new GameStatistics(0, 1, 3, 0);
         backgroundTexture = assets.getTexture(Assets.BACKGROUND);
         batch = new SpriteBatch();
         staticBatch = new SpriteBatch();
         world = new World(new Vector2(0f, 0f), true);
         pendingEffects = new ArrayList<ParticleEffectPool.PooledEffect>();
         toRemove = new ArrayList<GameObject>();
-        gameStatistics = new GameStatistics(0, 1, 3);
         player = recreatePlayer();
         world.setContactListener(new ContactListener() {
             @Override
@@ -101,18 +104,13 @@ public class LevelScreen implements Screen {
                         }
                     }
                 }
-                System.out.println("Velocity: " + player.getBody().getLinearVelocity().len());
-                System.out.println("Velocity x: " + player.getBody().getLinearVelocity().x);
-                System.out.println("Velocity y: " + player.getBody().getLinearVelocity().y);
             }
         });
 
         allBlocks = createBlocks(1, jsonManager);
         allBorders = createBorders();
+        levelCompleted = false;
         Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, player));
-        System.out.println("Velocity: " + player.getBody().getLinearVelocity().len());
-        System.out.println("Velocity x: " + player.getBody().getLinearVelocity().x);
-        System.out.println("Velocity y: " + player.getBody().getLinearVelocity().y);
         player.moveDown(2000);
     }
 
@@ -193,6 +191,7 @@ public class LevelScreen implements Screen {
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.BLOCK_TEXTURE)), body,
                                         block.getColor(), GameObjectType.getColoredBlockFor(block.getColor()),
                                         new ColoredBlockCollisionHandler());
+            gameStatistics.increaseRemainingColorBlocks();
         } else if (GameObjectType.COLORIZE_BLOCKS.contains(block.getType())){
             gameObject = new GameObject(block.getId(), new Sprite(assets.getTexture(Assets.COLORIZE_BLOCK_TEXTURE)), body,
                     block.getColor(), GameObjectType.getColorizeBlockFor(block.getColor()),
@@ -259,8 +258,12 @@ public class LevelScreen implements Screen {
         // Make sure that the player doesn't exceed a maximum speed
         ensureSpeedLimit();
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
-        player.update();
-
+        boolean playerDestroyedNow = destroyGameObjects();
+        removeOutdatedParticleEffects();
+        // Just "freeze" the player when the level has been completed
+        if (!levelCompleted) {
+            player.update();
+        }
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         for (ParticleEffect effect : pendingEffects) {
@@ -268,7 +271,6 @@ public class LevelScreen implements Screen {
         }
         staticBatch.begin();
         staticBatch.draw(backgroundTexture, 0f, 0f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        // new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
         staticBatch.end();
         camera.position.x = player.getPosition().x;
         camera.update();
@@ -288,10 +290,85 @@ public class LevelScreen implements Screen {
         batch.end();
         staticBatch.begin();
         new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
+        if (gameStatistics.getRemainingColorBlocks() == 0) {
+            levelCompleted = true;
+            renderLevelCompleted();
+            scheduleSwitchToNextLevel();
+        }
+        if (gameStatistics.getLifes() == 0) {
+            renderGameOver();
+        }
+        if (playerDestroyedNow && gameStatistics.getLifes() > 0 ) {
+            recreatePlayer();
+        }
+        if (playerDestroyedNow && gameStatistics.getLifes() == 0) {
+            scheduleSwitchToHighscore();
+        }
         staticBatch.end();
+    }
 
-        removeOutdatedParticleEffects();
-        removeElementsFromWorld();
+    private void scheduleSwitchToNextLevel() {
+        // Switch to the next level some seconds later
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                game.openHighscore();
+            }
+        }, 3);
+    }
+
+    private void scheduleSwitchToHighscore() {
+        // Switch to the highscore screen some seconds later
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                game.openHighscore();
+            }
+        }, 3);
+    }
+
+    private void renderGameOver() {
+        // Show the game over screen
+        I18NBundle bundle = assets.getBundle();
+        BitmapFont font = assets.getBigBitmapFont();
+        font.setColor(Color.RED);
+        GlyphLayout layout = new GlyphLayout(font, bundle.get("game_over"), Color.RED, 200, Align.left, false);
+        font.draw(staticBatch, layout, Gdx.graphics.getWidth() / 2 - (layout.width / 2),
+                (Gdx.graphics.getHeight() / 2));
+
+        // Check for the highscore
+        boolean isInHighscore = new HighscoreManager().addEntry(gameStatistics.getScore(), jsonManager);
+        if (isInHighscore) {
+            layout = new GlyphLayout(font, bundle.get("highscore_reached"), Color.RED, 200, Align.left, false);
+            font.draw(staticBatch, layout, Gdx.graphics.getWidth() / 2 - (layout.width / 2),
+                    (Gdx.graphics.getHeight() / 2) - layout.height * 2);
+        }
+    }
+
+    private void renderLevelCompleted() {
+        // Show the level completed screen
+        I18NBundle bundle = assets.getBundle();
+        BitmapFont font = assets.getBigBitmapFont();
+        font.setColor(Color.RED);
+        GlyphLayout layout = new GlyphLayout(font, bundle.get("level_completed"), Color.RED, 200, Align.left, false);
+        font.draw(staticBatch, layout, Gdx.graphics.getWidth() / 2 - (layout.width / 2),
+                (Gdx.graphics.getHeight() / 2));
+    }
+
+    private boolean destroyGameObjects() {
+        boolean playerDestroyed = false;
+        // The world should be unlocked now -> we can destroy bodies now
+        if (toRemove.size() > 0) {
+            for (GameObject oneToRemove : toRemove) {
+                world.destroyBody(oneToRemove.getBody());
+                if (oneToRemove.getType() == GameObjectType.PLAYER) {
+                    playerDestroyed = true;
+                }
+            }
+            allBlocks.removeAll(toRemove);
+            toRemove.clear();
+        }
+        return playerDestroyed;
     }
 
     private void removeOutdatedParticleEffects() {
@@ -305,37 +382,6 @@ public class LevelScreen implements Screen {
         if (effectsToRemove.size() > 0) {
             pendingEffects.removeAll(effectsToRemove);
         }
-    }
-
-    private void removeElementsFromWorld() {
-        Gdx.app.postRunnable(new Runnable() {
-            @Override
-            public void run() {
-                if (toRemove.size() > 0) {
-                    for (GameObject oneToRemove : toRemove) {
-                        world.destroyBody(oneToRemove.getBody());
-                        if (oneToRemove.getId().equals(GlobalConstants.PLAYER_ID)) {
-                            // The player has already been removed from the physics, but let him still be visible for
-                            // some seconds, so that he can "explode". Afterwards we can show some message
-                            Timer.schedule(new Timer.Task() {
-                                @Override
-                                public void run() {
-                                    if (gameStatistics.getLifes() == 0) {
-                                        LevelScreen.this.dispose();
-                                        new HighscoreManager().addEntry(gameStatistics.getScore(), jsonManager);
-                                        game.openMainMenu();
-                                    } else {
-                                        recreatePlayer();
-                                    }
-                                }
-                            }, 2);
-                        }
-                    }
-                    allBlocks.removeAll(toRemove);
-                    toRemove.clear();
-                }
-            }
-        });
     }
 
     @Override
@@ -368,11 +414,20 @@ public class LevelScreen implements Screen {
 
     @Override
     public void dispose() {
-        staticBatch.dispose();
-        batch.dispose();
+        if (staticBatch != null) {
+            staticBatch.dispose();
+            staticBatch = null;
+        }
+        if (batch != null) {
+            batch.dispose();
+            batch = null;
+        }
         for (ParticleEffectPool.PooledEffect effect : pendingEffects) {
             assets.freeEffect(effect);
         }
-        world.dispose();
+        if (world != null) {
+            world.dispose();
+            world = null;
+        }
     }
 }

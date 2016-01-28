@@ -10,10 +10,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.model.Highscore;
 import de.dkweb.crillionic.utils.Assets;
+import de.dkweb.crillionic.utils.GraphicUtils;
 import de.dkweb.crillionic.utils.HighscoreManager;
 import de.dkweb.crillionic.utils.JsonManager;
 
@@ -80,7 +82,8 @@ public class HighscoreScreen implements Screen {
             table.row();
         }
 
-        TextButton closeButton = new TextButton("Close", skin);
+        I18NBundle bundle = assets.getBundle();
+        TextButton closeButton = new TextButton(bundle.get("close"), skin);
         closeButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 game.openMainMenu();
@@ -88,7 +91,7 @@ public class HighscoreScreen implements Screen {
             }
 
         });
-        table.add(closeButton);
+        table.add(closeButton).spaceTop(new GraphicUtils().getRelativeHeight(5));
         Gdx.input.setInputProcessor(stage);
     }
 

@@ -1,4 +1,4 @@
-package de.dkweb.crillionic;
+package de.dkweb.crillionic.utils;
 
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;

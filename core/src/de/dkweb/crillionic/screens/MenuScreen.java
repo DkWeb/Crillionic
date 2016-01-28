@@ -12,10 +12,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.model.Highscore;
 import de.dkweb.crillionic.utils.Assets;
+import de.dkweb.crillionic.utils.GraphicUtils;
 import de.dkweb.crillionic.utils.HighscoreManager;
 import de.dkweb.crillionic.utils.JsonManager;
 
@@ -62,6 +64,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void show() {
+        GraphicUtils graphicUtils = new GraphicUtils();
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
@@ -74,10 +77,11 @@ public class MenuScreen implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        table.add(new Label("Crillionic", skin)).spaceBottom(getRelativeHeight(10));
+        table.add(new Label("Crillionic", skin)).spaceBottom(graphicUtils.getRelativeHeight(10));
         table.row();
 
-        TextButton newGameButton = new TextButton("New game", skin);
+        I18NBundle bundle = assets.getBundle();
+        TextButton newGameButton = new TextButton(bundle.get("new_game"), skin);
         newGameButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 game.startLevel();
@@ -85,10 +89,11 @@ public class MenuScreen implements Screen {
             }
 
         });
-        table.add(newGameButton).width(getRelativeWidth(80)).spaceBottom(getRelativeHeight(5));
+        table.add(newGameButton).width(graphicUtils.getRelativeWidth(80)).spaceBottom(graphicUtils.getRelativeHeight
+                (5));
         table.row();
 
-        TextButton openHighscoreButton = new TextButton("Open Highscore", skin);
+        TextButton openHighscoreButton = new TextButton(bundle.get("open_highscore"), skin);
         openHighscoreButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 game.openHighscore();
@@ -96,7 +101,7 @@ public class MenuScreen implements Screen {
             }
 
         });
-        table.add(openHighscoreButton).width(getRelativeWidth(80));
+        table.add(openHighscoreButton).width(graphicUtils.getRelativeWidth(80));
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -108,13 +113,7 @@ public class MenuScreen implements Screen {
         stage.draw();
     }
 
-    private int getRelativeWidth(int percent) {
-        return (Gdx.graphics.getWidth() * percent) / 100;
-    }
 
-    private int getRelativeHeight(int percent) {
-        return (Gdx.graphics.getHeight() * percent) / 100;
-    }
 
     @Override
     public void resize(int width, int height) {

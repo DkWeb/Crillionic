@@ -1,6 +1,5 @@
 package de.dkweb.crillionic.model;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import de.dkweb.crillionic.utils.GlobalConstants;
@@ -278,7 +277,7 @@ public enum GameObjectType {
     public final static List<GameObjectType> COLORIZE_BLOCKS = Arrays.asList(new GameObjectType[] { COLORIZE_RED, COLORIZE_GREEN, COLORIZE_BLUE });
 
     private final static int SCORE_PER_BLOCK = 1000;
-    private final static float ALPHA_VALUE = 0.5f;
+    private final static float ALPHA_VALUE = 0.7f;
     public abstract int getScore();
     public abstract Color getDefaultColor();
     public abstract boolean canBeDestroyed();
