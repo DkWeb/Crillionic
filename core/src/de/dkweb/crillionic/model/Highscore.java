@@ -36,13 +36,20 @@ public class Highscore {
         // If this would be at a position > GlobalConstants.MAX_HIGHSCORE_ENTRIES
         // the score was not good enough
         boolean added = false;
-        for (int i = 0; i < GlobalConstants.MAX_HIGHSCORE_ENTRIES; i++) {
+        for (int i = 0; i < scores.size(); i++) {
             int oldScore = scores.get(i);
             if (score > oldScore) {
                 scores.add(i, score);
                 added = true;
                 break;
             }
+        }
+        // If we did not find a appropriate position for inserting the value,
+        // but the list is not fully filled, we can simply add the value at
+        // the end of the list
+        if (!added && scores.size() < GlobalConstants.MAX_HIGHSCORE_ENTRIES) {
+            scores.add(score);
+            added = true;
         }
         if (scores.size() > GlobalConstants.MAX_HIGHSCORE_ENTRIES) {
             scores.remove(GlobalConstants.MAX_HIGHSCORE_ENTRIES);

@@ -294,9 +294,11 @@ public class LevelScreen implements Screen {
         staticBatch.begin();
         new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
         if (gameStatistics.getRemainingColorBlocks() == 0) {
+            renderLevelCompleted();
+        }
+        if (gameStatistics.getRemainingColorBlocks() == 0 && !levelCompleted) {
             levelCompleted = true;
             new HighscoreManager(new FileUtils()).addEntry(gameStatistics.getScore(), jsonManager);
-            renderLevelCompleted();
             scheduleSwitchToNextLevel();
         }
         if (gameStatistics.getLifes() == 0) {

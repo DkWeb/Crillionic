@@ -44,6 +44,22 @@ public class HighscoreManagerTest {
     }
 
     @Test
+    public void addEntryToEmptyHighscore() throws IOException {
+        File originalFile = getTestResourceFile("empty_highscore.json");
+        // Copy the original file and work with the copy only
+        File copyFile;
+        new FileUtils().copyFile(originalFile, new File(originalFile.getParentFile(), "highscore_copy.json"));
+        copyFile = getTestResourceFile("highscore_copy.json");
+        copyFile.deleteOnExit();
+        HighscoreManager highscoreManager = new HighscoreManager(new FileUtilsMock(new FileHandle(copyFile)));
+        assertTrue(highscoreManager.addEntry(3000, new JsonManager()));
+
+        Highscore currentHighscore = highscoreManager.getHighscore(new JsonManager());
+        assertEquals(1, currentHighscore.getScores().size());
+        assertEquals(Integer.valueOf(3000), currentHighscore.getScores().get(0));
+    }
+
+    @Test
     public void addEntryToHighscore() throws IOException {
         File originalFile = getTestResourceFile("highscore.json");
         // Copy the original file and work with the copy only
