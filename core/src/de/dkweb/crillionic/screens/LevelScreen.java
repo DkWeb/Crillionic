@@ -21,7 +21,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.*;
 import de.dkweb.crillionic.Crillionic;
-import de.dkweb.crillionic.utils.LevelFactory;
+import de.dkweb.crillionic.utils.*;
 import de.dkweb.crillionic.events.ColoredBlockCollisionHandler;
 import de.dkweb.crillionic.events.ColorizerBlockCollisionHandler;
 import de.dkweb.crillionic.events.DoNothingCollisionHandler;
@@ -33,10 +33,6 @@ import de.dkweb.crillionic.model.GameObjectType;
 import de.dkweb.crillionic.model.GameObject;
 import de.dkweb.crillionic.model.GameStatistics;
 import de.dkweb.crillionic.render.StatisticRenderer;
-import de.dkweb.crillionic.utils.Assets;
-import de.dkweb.crillionic.utils.GlobalConstants;
-import de.dkweb.crillionic.utils.HighscoreManager;
-import de.dkweb.crillionic.utils.JsonManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -299,11 +295,12 @@ public class LevelScreen implements Screen {
         new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
         if (gameStatistics.getRemainingColorBlocks() == 0) {
             levelCompleted = true;
+            new HighscoreManager(new FileUtils()).addEntry(gameStatistics.getScore(), jsonManager);
             renderLevelCompleted();
             scheduleSwitchToNextLevel();
         }
         if (gameStatistics.getLifes() == 0) {
-            renderGameOver();
+            renderGameOver(new HighscoreManager(new FileUtils()).addEntry(gameStatistics.getScore(), jsonManager));
         }
         if (playerDestroyedNow && gameStatistics.getLifes() > 0 ) {
             recreatePlayer();
@@ -334,7 +331,7 @@ public class LevelScreen implements Screen {
         }, 3);
     }
 
-    private void renderGameOver() {
+    private void renderGameOver(boolean isInHighscore) {
         // Show the game over screen
         I18NBundle bundle = assets.getBundle();
         BitmapFont font = assets.getBigBitmapFont();
@@ -343,8 +340,6 @@ public class LevelScreen implements Screen {
         font.draw(staticBatch, layout, Gdx.graphics.getWidth() / 2 - (layout.width / 2),
                 (Gdx.graphics.getHeight() / 2));
 
-        // Check for the highscore
-        boolean isInHighscore = new HighscoreManager().addEntry(gameStatistics.getScore(), jsonManager);
         if (isInHighscore) {
             layout = new GlyphLayout(font, bundle.get("highscore_reached"), Color.RED, 200, Align.left, false);
             font.draw(staticBatch, layout, Gdx.graphics.getWidth() / 2 - (layout.width / 2),

@@ -13,6 +13,7 @@ package de.dkweb.crillionic.model;
 import de.dkweb.crillionic.utils.GlobalConstants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Highscore {
@@ -30,21 +31,23 @@ public class Highscore {
         if (score <= 0) {
             return false;
         }
-        if (scores.size() < GlobalConstants.MAX_HIGHSCORE_ENTRIES) {
-            scores.add(score);
-            return true;
-        }
 
-        // The highscore is already "full". Check if the new score is better than any existing
-        for (int i = 0; i < scores.size(); i++) {
+        // Add the score to the highscore at the appropriate position.
+        // If this would be at a position > GlobalConstants.MAX_HIGHSCORE_ENTRIES
+        // the score was not good enough
+        boolean added = false;
+        for (int i = 0; i < GlobalConstants.MAX_HIGHSCORE_ENTRIES; i++) {
             int oldScore = scores.get(i);
             if (score > oldScore) {
                 scores.add(i, score);
-                scores.remove(scores.size() - 1);
-                return true;
+                added = true;
+                break;
             }
         }
-        return false;
+        if (scores.size() > GlobalConstants.MAX_HIGHSCORE_ENTRIES) {
+            scores.remove(GlobalConstants.MAX_HIGHSCORE_ENTRIES);
+        }
+        return added;
     }
 }
 

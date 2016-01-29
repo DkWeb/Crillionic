@@ -20,11 +20,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class HighscoreManager {
+    private FileUtils fileUtils;
+
+    public HighscoreManager(FileUtils fileUtils) {
+        this.fileUtils = fileUtils;
+    }
+
     public Highscore getHighscore(JsonManager jsonManager) {
         InputStream inputStream = null;
         Highscore currentHighscore;
         try {
-            FileHandle handle = Gdx.files.getFileHandle("highscore.json", Files.FileType.Local);
+            FileHandle handle = fileUtils.getFileHandle("highscore.json", Files.FileType.Local);
             if (handle.exists()) {
                 inputStream = handle.read();
                 currentHighscore = jsonManager.loadHighscore(inputStream);
@@ -60,7 +66,7 @@ public class HighscoreManager {
         // Persist the result
         OutputStream outputStream = null;
         try {
-            FileHandle handle = Gdx.files.getFileHandle("highscore.json", Files.FileType.Local);
+            FileHandle handle = fileUtils.getFileHandle("highscore.json", Files.FileType.Local);
             outputStream = handle.write(false);
             jsonManager.saveHighscore(currentHighscore, outputStream);
         } finally {

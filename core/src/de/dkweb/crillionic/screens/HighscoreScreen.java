@@ -77,7 +77,7 @@ public class HighscoreScreen implements Screen {
 
         table.add(new Label("Highscore", skin));
         table.row();
-        Highscore currentHighscore = new HighscoreManager().getHighscore(new JsonManager());
+        Highscore currentHighscore = new HighscoreManager(new FileUtils()).getHighscore(new JsonManager());
         for (Integer score : currentHighscore.getScores()) {
             table.add(new Label(String.valueOf(score), skin));
             table.row();
