@@ -11,6 +11,8 @@
 package de.dkweb.crillionic.utils;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 
 public class GraphicUtils {
     public int getRelativeWidth(int percent) {
@@ -19,5 +21,22 @@ public class GraphicUtils {
 
     public int getRelativeHeight(int percent) {
         return (Gdx.graphics.getHeight() * percent) / 100;
+    }
+
+    /*
+    * See also:
+    * https://developerover30.wordpress.com/2014/11/11/libgdx-creating-a-rounded-rectangle-pixmap/
+    */
+    public Pixmap createRoundedCornerPixmap(int radius) {
+        Pixmap pixmap = new Pixmap((int) Gdx.graphics.getWidth() / 2, (int) Gdx.graphics.getHeight() / 5, Pixmap.Format
+                .RGB888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fillRectangle(0, radius, pixmap.getWidth(), pixmap.getHeight() - 2 * radius);
+        pixmap.fillRectangle(radius, 0, pixmap.getWidth() - 2 * radius, pixmap.getHeight());
+        pixmap.fillCircle(radius, radius, radius);
+        pixmap.fillCircle(radius, pixmap.getHeight() - radius, radius);
+        pixmap.fillCircle(pixmap.getWidth() - radius, radius, radius);
+        pixmap.fillCircle(pixmap.getWidth() - radius, pixmap.getHeight() - radius, radius);
+        return pixmap;
     }
 }

@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.utils.Assets;
+import de.dkweb.crillionic.utils.GlobalConstants;
 import de.dkweb.crillionic.utils.GraphicUtils;
 
 public class MenuScreen implements Screen {
@@ -41,13 +42,8 @@ public class MenuScreen implements Screen {
         skin = new Skin();
         skin.add("default", assets.getBigBitmapFont());
 
-        //Create a texture
-        Pixmap pixmap = new Pixmap((int) Gdx.graphics.getWidth()/2, (int) Gdx.graphics.getHeight()/5, Pixmap.Format
-                .RGB888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fill();
+        Pixmap pixmap = new GraphicUtils().createRoundedCornerPixmap(GlobalConstants.BUTTON_ROUNDED_CORNER_RADIUS);
         skin.add("btnBackground", new Texture(pixmap));
-
 
         // Create a Label style
         Label.LabelStyle labelStyle = new Label.LabelStyle();
@@ -63,6 +59,8 @@ public class MenuScreen implements Screen {
         skin.add("default", textButtonStyle);
         skin.add("default", labelStyle);
     }
+
+
 
     @Override
     public void show() {

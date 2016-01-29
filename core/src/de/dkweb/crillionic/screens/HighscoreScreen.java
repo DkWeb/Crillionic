@@ -24,10 +24,7 @@ import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import de.dkweb.crillionic.Crillionic;
 import de.dkweb.crillionic.model.Highscore;
-import de.dkweb.crillionic.utils.Assets;
-import de.dkweb.crillionic.utils.GraphicUtils;
-import de.dkweb.crillionic.utils.HighscoreManager;
-import de.dkweb.crillionic.utils.JsonManager;
+import de.dkweb.crillionic.utils.*;
 
 public class HighscoreScreen implements Screen {
     private Skin skin;
@@ -45,10 +42,7 @@ public class HighscoreScreen implements Screen {
         skin.add("default", assets.getBigBitmapFont());
 
         //Create a texture
-        Pixmap pixmap = new Pixmap((int) Gdx.graphics.getWidth()/2, (int) Gdx.graphics.getHeight()/5, Pixmap.Format
-                .RGB888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fill();
+        Pixmap pixmap = new GraphicUtils().createRoundedCornerPixmap(GlobalConstants.BUTTON_ROUNDED_CORNER_RADIUS);
         skin.add("btnBackground", new Texture(pixmap));
 
 
