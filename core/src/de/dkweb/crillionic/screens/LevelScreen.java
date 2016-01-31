@@ -114,7 +114,6 @@ public class LevelScreen implements Screen {
         allBorders = createBorders();
         levelCompleted = false;
         Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, player));
-        player.moveDown(2000);
     }
 
     private GameObject recreatePlayer() {
@@ -122,6 +121,7 @@ public class LevelScreen implements Screen {
         Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
         GameObject player = new GameObject(GlobalConstants.PLAYER_ID, new Sprite(assets.getTexture(Assets.BALL_TEXTURE)), bodyPlayer,
                                             Color.GREEN, GameObjectType.PLAYER, new DoNothingCollisionHandler());
+        player.setAbsoluteSpeed(0f);
         player.moveDown(2000);
         return player;
     }
@@ -305,7 +305,7 @@ public class LevelScreen implements Screen {
             renderGameOver(new HighscoreManager(new FileUtils()).addEntry(gameStatistics.getScore(), jsonManager));
         }
         if (playerDestroyedNow && gameStatistics.getLifes() > 0 ) {
-            recreatePlayer();
+            scheduleSpawnNewPlayer();
         }
         if (playerDestroyedNow && gameStatistics.getLifes() == 0) {
             scheduleSwitchToHighscore();
@@ -321,6 +321,16 @@ public class LevelScreen implements Screen {
                 game.openHighscore();
             }
         }, 3);
+    }
+
+    private void scheduleSpawnNewPlayer() {
+        // Spawn new player some seconds later
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                player = recreatePlayer();
+            }
+        }, 2);
     }
 
     private void scheduleSwitchToHighscore() {
