@@ -13,7 +13,7 @@ This remake is using Libgdx for targeting the Android mobile platform instead of
 ![Level completed](/screenshots/level_completed.png?raw=true "Level completed")
 
 Unfortunately I'm not a designer, so I had to start with some "hand-made" textures for the blocks, walls and particle
-effects. Hopefully I will find someone in the futur who can improve the look of the game.
+effects. Hopefully I will find someone in the future who can improve the look of the game.
 
 ## Why?
 I've had two main reasons to start with this project: first of all, I really love the original "Crillion" because of its simplicity and the immense "only-just-one-more-level-for-today"-factor. But even if you can play it today with an emulator like "Frodo C64" on your Android phone this isn't fully satisfying: using the little joystick emulation on a 5" display is not as accurate as it was in the old days and so you will die very often just because of your clumsy fingers.
