@@ -7,6 +7,14 @@ But in contrast to Breakout you have neither a paddle nor do you have to be afra
 
 This remake is using Libgdx for targeting the Android mobile platform instead of the good old C64. So, the controls have been adapted to support touch gestures: while your ball is jumping around the level you must "control" it by dragging your screen and so giving the ball some kind of impulse. Dragging a longer distance will lead to a stronger impulse, dragging just a short track will give it only a little "clap".
 
+## Some Screenshots
+![The main menu](/screenshots/menu.png?raw=true "The main menu")
+![Colorize the ball](/screenshots/play.png?raw=true "Colorize the ball")
+![Level completed](/screenshots/level_completed.png?raw=true "Level completed")
+
+Unfortunately I'm not a designer, so I had to start with some "hand-made" textures for the blocks, walls and particle
+effects. Hopefully I will find someone in the futur who can improve the look of the game.
+
 ## Why?
 I've had two main reasons to start with this project: first of all, I really love the original "Crillion" because of its simplicity and the immense "only-just-one-more-level-for-today"-factor. But even if you can play it today with an emulator like "Frodo C64" on your Android phone this isn't fully satisfying: using the little joystick emulation on a 5" display is not as accurate as it was in the old days and so you will die very often just because of your clumsy fingers.
 
