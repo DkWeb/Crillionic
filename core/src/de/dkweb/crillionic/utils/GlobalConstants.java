@@ -18,4 +18,5 @@ public class GlobalConstants {
     public final static float MAX_SPEED_IN_UNITS_PER_RENDER = 5f;
     public final static int MAX_HIGHSCORE_ENTRIES = 10;
     public final static int BUTTON_ROUNDED_CORNER_RADIUS = 15;
+    public final static int BASE_RESOLUTION_WIDTH = 640;
 }

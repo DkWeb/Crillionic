@@ -15,7 +15,7 @@ android {
         instrumentTest.setRoot('tests')
     }
     defaultConfig {
-        applicationId "de.dkweb.lighthouse"
+        applicationId "de.dkweb.crillionic"
         minSdkVersion 8
         targetSdkVersion 21
     }

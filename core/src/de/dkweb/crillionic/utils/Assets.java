@@ -35,8 +35,8 @@ public class Assets {
 	private static final String EXPLOSION_EFFECT = "explosion.p";
     private static final String STRING_BUNDLE = "strings/strings";
 	private static final String STANDARD_FONT_NAME = "Roboto-Regular.ttf";
-	private static final int DEFAULT_FONT_SIZE = 26;
-    private static final int BIG_FONT_SIZE = 48;
+	private static final int BASE_DEFAULT_FONT_SIZE = 26;
+    private static final int BASE_BIG_FONT_SIZE = 48;
 	private AssetManager assetManager;
 	private boolean allLoaded;
     private ParticleEffectPool explosionEffectPool;
@@ -78,11 +78,15 @@ public class Assets {
     }
 
 	public BitmapFont getStandardBitmapFont() {
-		return assetManager.get(STANDARD_FONT_NAME + ";" + String.valueOf(DEFAULT_FONT_SIZE) + ";" + String.valueOf(false), GeneratedBitmapFont.class).getFont();
+		return assetManager.get(STANDARD_FONT_NAME + ";" + String.valueOf(calculateActualDefaultFontSize(Gdx.graphics.getWidth())) + ";" + String
+                .valueOf(false), GeneratedBitmapFont.class).getFont();
 	}
 
     public BitmapFont getBigBitmapFont() {
-        return assetManager.get(STANDARD_FONT_NAME + ";" + String.valueOf(BIG_FONT_SIZE) + ";" + String.valueOf(false), GeneratedBitmapFont.class).getFont();
+        return assetManager.get(STANDARD_FONT_NAME + ";" + String.valueOf(calculateActualBigFontSize(Gdx.graphics.getWidth()))
+                        + ";" +
+                        String.valueOf(false),
+                GeneratedBitmapFont.class).getFont();
     }
 	
 	private void createFontInMemory(int pixelSize, String fontName, boolean flipped) {
@@ -93,8 +97,8 @@ public class Assets {
 	}	
 	
 	private void loadAllFonts() {
-		createFontInMemory(DEFAULT_FONT_SIZE, STANDARD_FONT_NAME, false);
-        createFontInMemory(BIG_FONT_SIZE, STANDARD_FONT_NAME, false);
+		createFontInMemory(calculateActualDefaultFontSize(Gdx.graphics.getWidth()), STANDARD_FONT_NAME, false);
+        createFontInMemory(calculateActualBigFontSize(Gdx.graphics.getWidth()), STANDARD_FONT_NAME, false);
 	}
 	
 	public Texture getTexture(String name) {
@@ -115,5 +119,13 @@ public class Assets {
 
     public I18NBundle getBundle() {
         return assetManager.get(STRING_BUNDLE, I18NBundle.class);
+    }
+
+    private int calculateActualBigFontSize(int actualWidth) {
+        return (actualWidth / GlobalConstants.BASE_RESOLUTION_WIDTH) * BASE_BIG_FONT_SIZE;
+    }
+
+    private int calculateActualDefaultFontSize(int actualWidth) {
+        return (actualWidth / GlobalConstants.BASE_RESOLUTION_WIDTH) * BASE_DEFAULT_FONT_SIZE;
     }
 }

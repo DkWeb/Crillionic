@@ -4,7 +4,7 @@ sourceCompatibility = '1.7'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 ext {
-	mainClassName = "de.dkweb.lighthouse.IOSLauncher"
+	mainClassName = "de.dkweb.crillionic.IOSLauncher"
 }
 
 launchIPhoneSimulator.dependsOn build
