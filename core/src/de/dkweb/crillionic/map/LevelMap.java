@@ -10,9 +10,10 @@
  */
 package de.dkweb.crillionic.map;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import com.badlogic.gdx.math.Vector2;
+import de.dkweb.crillionic.model.GameObjectType;
+
+import java.util.*;
 
 /**
  * Describes one level consisting of the different blocks
@@ -23,6 +24,7 @@ public class LevelMap {
 
     private int levelId;
     private Map<String, MapObject> blocks;
+    private Vector2 initialPlayerPosition;
 
     public LevelMap(int levelId) {
         blocks = new HashMap<String, MapObject>();
@@ -45,6 +47,21 @@ public class LevelMap {
         return blocks.values();
     }
 
+    public List<MapObject> getColoredBlocks() {
+        List<MapObject> coloredBlocks = new ArrayList<MapObject>();
+        for (MapObject anObject : blocks.values()) {
+            if (GameObjectType.COLORED_BLOCKS.contains(anObject.getType())) {
+                coloredBlocks.add(anObject) ;
+            }
+        }
+        return coloredBlocks;
+    }
 
+    public Vector2 getInitialPlayerPosition() {
+        return initialPlayerPosition;
+    }
 
+    public int getLevelId() {
+        return levelId;
+    }
 }

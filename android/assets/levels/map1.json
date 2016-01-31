@@ -10,5 +10,6 @@
   "Block 8": {"id":"Block 8","type":"COLORIZE_GREEN","position":{"x": -4,"y":-1}},
   "Block 6": {"id":"Block 6","type":"KILLER","position":{"x": 2,"y":1}},
   "Block 7": {"id":"Block 7","type":"RED_BLOCK","position":{"x": 0,"y":1}}
-}
+},
+"initialPlayerPosition": { "x": 0, "y": 3}
 }

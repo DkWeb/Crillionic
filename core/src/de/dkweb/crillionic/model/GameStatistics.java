@@ -10,6 +10,10 @@
  */
 package de.dkweb.crillionic.model;
 
+/**
+ * The relevant information about the current game from the players'
+ * point of view (like his current score etc.)
+ */
 public class GameStatistics {
     private int score;
     private int level;
@@ -52,9 +56,5 @@ public class GameStatistics {
 
     public void decreaseRemainingColorBlocks() {
         remainingColorBlocks--;
-    }
-
-    public void increaseRemainingColorBlocks() {
-        remainingColorBlocks++;
     }
 }

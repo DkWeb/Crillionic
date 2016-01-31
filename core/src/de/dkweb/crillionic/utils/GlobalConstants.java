@@ -19,4 +19,5 @@ public class GlobalConstants {
     public final static int MAX_HIGHSCORE_ENTRIES = 10;
     public final static int BUTTON_ROUNDED_CORNER_RADIUS = 15;
     public final static int BASE_RESOLUTION_WIDTH = 640;
+    public final static int INITIAL_LIFES = 3;
 }
