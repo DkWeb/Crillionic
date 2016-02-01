@@ -11,5 +11,6 @@
   "Block 6": {"id":"Block 6","type":"KILLER","position":{"x": 2,"y":1}},
   "Block 7": {"id":"Block 7","type":"RED_BLOCK","position":{"x": 0,"y":1}}
 },
-"initialPlayerPosition": { "x": 0, "y": 3}
+"initialPlayerPosition": { "x": 0, "y": 3},
+"initialPlayerImpulse": { "x": 0, "y": -20}
 }

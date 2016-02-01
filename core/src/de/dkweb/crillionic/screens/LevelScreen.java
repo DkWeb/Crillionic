@@ -101,6 +101,8 @@ public class LevelScreen implements Screen {
         });
         levelCompleted = false;
         Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, GameWorld.getWorld().getPlayer()));
+        Vector2 initialPlayerImpulse = map.getInitialPlayerImpulse();
+        GameWorld.getWorld().getPlayer().move(initialPlayerImpulse.x, initialPlayerImpulse.y);
     }
 
     private void ensureSpeedLimit() {

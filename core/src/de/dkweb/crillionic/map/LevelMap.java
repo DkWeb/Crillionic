@@ -25,6 +25,7 @@ public class LevelMap {
     private int levelId;
     private Map<String, MapObject> blocks;
     private Vector2 initialPlayerPosition;
+    private Vector2 initialPlayerImpulse;
 
     public LevelMap(int levelId) {
         blocks = new HashMap<String, MapObject>();
@@ -59,6 +60,10 @@ public class LevelMap {
 
     public Vector2 getInitialPlayerPosition() {
         return initialPlayerPosition;
+    }
+
+    public Vector2 getInitialPlayerImpulse() {
+        return initialPlayerImpulse;
     }
 
     public int getLevelId() {
