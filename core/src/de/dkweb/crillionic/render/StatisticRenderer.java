@@ -26,19 +26,26 @@ public class StatisticRenderer {
         String lifes = bundle.format("lifes", statistics.getLifes());
         String score = bundle.format("score", statistics.getScore());
         String level = bundle.format("level", statistics.getLevel());
+        String time = bundle.format("time", (int) statistics.getRemainingTime());
 
         BitmapFont font = assets.getStandardBitmapFont();
         font.setColor(Color.RED);
         GlyphLayout layout = new GlyphLayout(font, lifes, Color.RED, 200, Align.left, false);
-        font.draw(batchWithoutProjection, layout, Gdx.graphics.getWidth() / 10,
+        font.draw(batchWithoutProjection, layout, Gdx.graphics.getWidth() / 20,
                 Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 20));
 
         layout = new GlyphLayout(font, score, Color.RED, 200, Align.left, false);
-        font.draw(batchWithoutProjection, layout, (Gdx.graphics.getWidth() / 2) - (layout.width / 2),
+        font.draw(batchWithoutProjection, layout, (Gdx.graphics.getWidth() / 2) - (layout.width / 2)  - Gdx.graphics
+                        .getWidth() / 8,
                 Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 20));
 
         layout = new GlyphLayout(font, level, Color.RED, 200, Align.left, false);
-        font.draw(batchWithoutProjection, layout, Gdx.graphics.getWidth() - layout.width - Gdx.graphics.getWidth() / 10,
+        font.draw(batchWithoutProjection, layout, (Gdx.graphics.getWidth() / 2) - (layout.width / 2)  + Gdx.graphics
+                        .getWidth() / 8,
+                Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 20));
+
+        layout = new GlyphLayout(font, time, Color.RED, 200, Align.left, false);
+        font.draw(batchWithoutProjection, layout, Gdx.graphics.getWidth() - layout.width - Gdx.graphics.getWidth() / 20,
                 Gdx.graphics.getHeight() - (Gdx.graphics.getHeight() / 20));
     }
 }

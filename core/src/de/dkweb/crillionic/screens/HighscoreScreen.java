@@ -72,8 +72,10 @@ public class HighscoreScreen implements Screen {
 
         createBasicSkin();
         Table table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
+        // table.setFillParent(true);
+        ScrollPane scrollPane = new ScrollPane(table);
+        scrollPane.setFillParent(true);
+        stage.addActor(scrollPane);
 
         table.add(new Label("Highscore", skin));
         table.row();

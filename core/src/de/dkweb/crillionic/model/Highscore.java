@@ -27,6 +27,19 @@ public class Highscore {
         return scores;
     }
 
+    public boolean isInHigshscore(int score) {
+        if (score <= 0) {
+            return false;
+        }
+
+        if (scores.size() < GlobalConstants.MAX_HIGHSCORE_ENTRIES) {
+            return true;
+        }
+
+        // Check, if the achieved score is better than the worst score of the highscore
+        return scores.get(scores.size() - 1) < score;
+    }
+
     public boolean addToHighscore(int score) {
         if (score <= 0) {
             return false;

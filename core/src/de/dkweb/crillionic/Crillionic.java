@@ -41,18 +41,27 @@ public class Crillionic extends Game {
 	@Override
 	public void create () {
         assets = new Assets();
-		setScreen(new MenuScreen(this, assets));
+        openMainMenu();
 	}
 
     public void startLevel() {
+        disposeCurrentScreenIfExists();
         setScreen(new LevelScreen(this, assets));
     }
 
     public void openHighscore() {
+        disposeCurrentScreenIfExists();
         setScreen(new HighscoreScreen(this, assets));
     }
 
     public void openMainMenu() {
+        disposeCurrentScreenIfExists();
         setScreen(new MenuScreen(this, assets));
+    }
+
+    private void disposeCurrentScreenIfExists() {
+        if (getScreen() != null) {
+            getScreen().dispose();
+        }
     }
 }

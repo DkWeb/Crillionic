@@ -12,6 +12,7 @@ import de.dkweb.crillionic.map.LevelMap;
 import de.dkweb.crillionic.map.MapObject;
 import de.dkweb.crillionic.utils.Assets;
 import de.dkweb.crillionic.utils.GlobalConstants;
+import de.dkweb.crillionic.utils.ScoreCalculator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +38,14 @@ import java.util.List;
  */
 public class GameWorld {
     private final static GameWorld instance = new GameWorld();
-    private final static World physicsWorld = new World(new Vector2(0f, 0f), true);
+    private final static ScoreCalculator scoreCalculator = new ScoreCalculator();
 
     private List<GameObject> allBlocks;
     private List<GameObject> allBorders;
     private GameObject player;
     private GameStatistics statistics;
+    private World physicsWorld;
+
 
     private Assets assets;
     private LevelMap map;
@@ -70,6 +73,9 @@ public class GameWorld {
     }
 
     public World getPhysicsWorld() {
+        if (physicsWorld == null) {
+            physicsWorld = new World(new Vector2(0f, 0f), true);
+        }
         return physicsWorld;
     }
 
@@ -129,9 +135,14 @@ public class GameWorld {
         return statistics;
     }
 
+    public ScoreCalculator getScoreCalculator() {
+        return scoreCalculator;
+    }
+
     public void dispose() {
         if (physicsWorld != null) {
             physicsWorld.dispose();
+            physicsWorld = null;
         }
     }
 
@@ -143,7 +154,7 @@ public class GameWorld {
         // The world should be unlocked now -> we can destroy bodies now
         if (toRemove.size() > 0) {
             for (GameObject oneToRemove : toRemove) {
-                physicsWorld.destroyBody(oneToRemove.getBody());
+                getPhysicsWorld().destroyBody(oneToRemove.getBody());
                 if (oneToRemove.getType() == GameObjectType.PLAYER) {
                     playerDestroyed = true;
                 }
@@ -155,7 +166,8 @@ public class GameWorld {
     }
 
     private void initializeGameStatistics(LevelMap map) {
-        statistics = new GameStatistics(0, map.getLevelId(), GlobalConstants.INITIAL_LIFES, map.getColoredBlocks().size());
+        statistics = new GameStatistics(0, map.getLevelId(), GlobalConstants.INITIAL_LIFES,
+                                        map.getColoredBlocks().size(), GlobalConstants.INITIAL_TIME);
     }
 
     private void initializeBorders(Assets assets) {
@@ -173,22 +185,22 @@ public class GameWorld {
                 new Vector2(0.1f, 1 * (GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2))};
 
         Body body = definePhysicsObject(new Vector2(0f, GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2),
-                verticesBorderHorizontal, BodyDef.BodyType.StaticBody, 0.8f);
+                verticesBorderHorizontal, BodyDef.BodyType.StaticBody, GlobalConstants.BORDER_RESITUTION);
         allBorders.add(new GameObject("Border top", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body,
                 null, GameObjectType.BORDER, new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(0f, -1 * (GlobalConstants.WORLD_HEIGHT_IN_UNITS / 2)),
-                verticesBorderHorizontal, BodyDef.BodyType.StaticBody, 1f);
+                verticesBorderHorizontal, BodyDef.BodyType.StaticBody, GlobalConstants.BORDER_RESITUTION);
         allBorders.add(new GameObject("Border bottom", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null,
                 GameObjectType.BORDER, new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(-1 * (GlobalConstants.WORLD_WIDTH_IN_UNITS / 2), 0f),
-                verticesBorderVertical, BodyDef.BodyType.StaticBody, 1f);
+                verticesBorderVertical, BodyDef.BodyType.StaticBody, GlobalConstants.BORDER_RESITUTION);
         allBorders.add(new GameObject("Border left", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null,
                 GameObjectType.BORDER, new DoNothingCollisionHandler()));
 
         body = definePhysicsObject(new Vector2(GlobalConstants.WORLD_WIDTH_IN_UNITS / 2, 0f),
-                verticesBorderVertical, BodyDef.BodyType.StaticBody, 1f);
+                verticesBorderVertical, BodyDef.BodyType.StaticBody, GlobalConstants.BORDER_RESITUTION);
         allBorders.add(new GameObject("Border right", new Sprite(assets.getTexture(Assets.BORDER_TEXTURE)), body, null,
                 GameObjectType.BORDER, new DoNothingCollisionHandler()));
     }
@@ -199,7 +211,7 @@ public class GameWorld {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = bodyType;
         bodyDef.position.set(position);
-        targetBody = physicsWorld.createBody(bodyDef);
+        targetBody = getPhysicsWorld().createBody(bodyDef);
 
         CircleShape shape = new CircleShape();
         shape.setRadius(radius);
@@ -218,7 +230,7 @@ public class GameWorld {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = bodyType;
         bodyDef.position.set(position);
-        targetBody = physicsWorld.createBody(bodyDef);
+        targetBody = getPhysicsWorld().createBody(bodyDef);
 
         PolygonShape shape = new PolygonShape();
         shape.set(vertices);

@@ -18,15 +18,18 @@ public class GameStatistics {
     private int score;
     private int level;
     private int lifes;
+    private float remainingTime;
+
     /**
      * The remaining color blocks for the current level
      */
     private int remainingColorBlocks;
 
-    public GameStatistics(int score, int level, int lifes, int remainingColorBlocks) {
+    public GameStatistics(int score, int level, int lifes, int remainingColorBlocks, int remainingTime) {
         this.score = score;
         this.level = level;
         this.lifes = lifes;
+        this.remainingTime = remainingTime;
         this.remainingColorBlocks = remainingColorBlocks;
     }
 
@@ -56,5 +59,13 @@ public class GameStatistics {
 
     public void decreaseRemainingColorBlocks() {
         remainingColorBlocks--;
+    }
+
+    public float getRemainingTime() {
+        return remainingTime;
+    }
+
+    public void decreaseRemainingTime(float delta) {
+        remainingTime -= delta;
     }
 }

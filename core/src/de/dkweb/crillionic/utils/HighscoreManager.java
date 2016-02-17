@@ -48,6 +48,15 @@ public class HighscoreManager {
         }
         return currentHighscore;
     }
+
+    public boolean isInHighscore(int achievedScore, JsonManager jsonManager) {
+        if (achievedScore == 0) {
+            return false;
+        }
+        Highscore currentHighscore = getHighscore(jsonManager);
+        return currentHighscore.isInHigshscore(achievedScore);
+    }
+
     public boolean addEntry(int achievedScore, JsonManager jsonManager) {
         if (achievedScore == 0) {
             return false;

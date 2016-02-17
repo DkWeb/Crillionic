@@ -16,11 +16,10 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.I18NBundle;
-import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.*;
 import de.dkweb.crillionic.Crillionic;
+import de.dkweb.crillionic.events.LevelEventListener;
+import de.dkweb.crillionic.events.SimpleLevelEventListener;
 import de.dkweb.crillionic.model.GameWorld;
 import de.dkweb.crillionic.utils.*;
 import de.dkweb.crillionic.input.SimpleInputProcessor;
@@ -44,6 +43,9 @@ public class LevelScreen implements Screen {
     private Crillionic game;
     private JsonManager jsonManager;
     private boolean levelCompleted;
+    private LevelEventListener levelEventListener;
+    private float secondsSinceLevelCompleted;
+    private boolean stopClock;
 
     public LevelScreen(Crillionic game, Assets assets) {
         this.game = game;
@@ -100,6 +102,9 @@ public class LevelScreen implements Screen {
             }
         });
         levelCompleted = false;
+        secondsSinceLevelCompleted = 0f;
+        stopClock = false;
+        levelEventListener = new SimpleLevelEventListener(assets, jsonManager, game, this);
         Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, GameWorld.getWorld().getPlayer()));
         Vector2 initialPlayerImpulse = map.getInitialPlayerImpulse();
         GameWorld.getWorld().getPlayer().move(initialPlayerImpulse.x, initialPlayerImpulse.y);
@@ -124,9 +129,10 @@ public class LevelScreen implements Screen {
         GameWorld.getWorld().getPhysicsWorld().step(Gdx.graphics.getDeltaTime(), 6, 2);
         boolean playerDestroyedNow = GameWorld.getWorld().destroyGameObjects(toRemove);
         removeOutdatedParticleEffects();
-        // Just "freeze" the player when the level has been completed
-        if (!levelCompleted) {
+        GameStatistics gameStatistics = GameWorld.getWorld().getGameStatistics();
+        if (!stopClock) {
             player.update();
+            gameStatistics.decreaseRemainingTime(delta);
         }
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -152,83 +158,28 @@ public class LevelScreen implements Screen {
             effect.draw(batch, Gdx.graphics.getDeltaTime());
         }
         batch.end();
-        GameStatistics gameStatistics = GameWorld.getWorld().getGameStatistics();
         staticBatch.begin();
         new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
-        if (gameStatistics.getRemainingColorBlocks() == 0) {
-            renderLevelCompleted();
+
+        // Calling the event handler for level events
+        if (playerDestroyedNow) {
+            stopClock = levelEventListener.playerDestroyed(gameStatistics, GameWorld.getWorld());
+            staticBatch.end();
+            return;
+        }
+        if (gameStatistics.getRemainingColorBlocks() == 0 && levelCompleted) {
+            secondsSinceLevelCompleted += delta;
+            stopClock = levelEventListener.levelFinished(true, gameStatistics, secondsSinceLevelCompleted, staticBatch);
+        } else if (gameStatistics.getLifes() == 0) {
+            stopClock = levelEventListener.levelFinished(false, gameStatistics, secondsSinceLevelCompleted, staticBatch);
         }
         if (gameStatistics.getRemainingColorBlocks() == 0 && !levelCompleted) {
+            int score = GameWorld.getWorld().getScoreCalculator().getLevelScore(gameStatistics);
+            stopClock = levelEventListener.levelJustFinished(true, new HighscoreManager(new FileUtils()).isInHighscore(score, jsonManager),
+                                                            gameStatistics, staticBatch);
             levelCompleted = true;
-            new HighscoreManager(new FileUtils()).addEntry(gameStatistics.getScore(), jsonManager);
-            scheduleSwitchToNextLevel();
-        }
-        if (gameStatistics.getLifes() == 0) {
-            renderGameOver(new HighscoreManager(new FileUtils()).addEntry(gameStatistics.getScore(), jsonManager));
-        }
-        if (playerDestroyedNow && gameStatistics.getLifes() > 0 ) {
-            scheduleSpawnNewPlayer();
-        }
-        if (playerDestroyedNow && gameStatistics.getLifes() == 0) {
-            scheduleSwitchToHighscore();
         }
         staticBatch.end();
-    }
-
-    private void scheduleSwitchToNextLevel() {
-        // Switch to the next level some seconds later
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                game.openHighscore();
-            }
-        }, 3);
-    }
-
-    private void scheduleSpawnNewPlayer() {
-        // Spawn new player some seconds later
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                GameWorld.getWorld().recreatePlayer();
-            }
-        }, 2);
-    }
-
-    private void scheduleSwitchToHighscore() {
-        // Switch to the highscore screen some seconds later
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                game.openHighscore();
-            }
-        }, 3);
-    }
-
-    private void renderGameOver(boolean isInHighscore) {
-        // Show the game over screen
-        I18NBundle bundle = assets.getBundle();
-        BitmapFont font = assets.getBigBitmapFont();
-        font.setColor(Color.RED);
-        GlyphLayout layout = new GlyphLayout(font, bundle.get("game_over"), Color.RED, 200, Align.left, false);
-        font.draw(staticBatch, layout, Gdx.graphics.getWidth() / 2 - (layout.width / 2),
-                (Gdx.graphics.getHeight() / 2));
-
-        if (isInHighscore) {
-            layout = new GlyphLayout(font, bundle.get("highscore_reached"), Color.RED, 200, Align.left, false);
-            font.draw(staticBatch, layout, Gdx.graphics.getWidth() / 2 - (layout.width / 2),
-                    (Gdx.graphics.getHeight() / 2) - layout.height * 2);
-        }
-    }
-
-    private void renderLevelCompleted() {
-        // Show the level completed screen
-        I18NBundle bundle = assets.getBundle();
-        BitmapFont font = assets.getBigBitmapFont();
-        font.setColor(Color.RED);
-        GlyphLayout layout = new GlyphLayout(font, bundle.get("level_completed"), Color.RED, 200, Align.left, false);
-        font.draw(staticBatch, layout, Gdx.graphics.getWidth() / 2 - (layout.width / 2),
-                (Gdx.graphics.getHeight() / 2));
     }
 
     private void removeOutdatedParticleEffects() {
@@ -242,6 +193,10 @@ public class LevelScreen implements Screen {
         if (effectsToRemove.size() > 0) {
             pendingEffects.removeAll(effectsToRemove);
         }
+    }
+
+    public void setStopClock(boolean stopClock) {
+        this.stopClock = stopClock;
     }
 
     @Override
