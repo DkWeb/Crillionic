@@ -34,6 +34,7 @@ public class GameObject {
     private GameObjectCollisionHandler collisionHandler;
     private Color color;
     private GameObjectType type;
+    private boolean directionLocked;
 
     public GameObject(String id, Sprite sprite, Body body, Color overwriteColor, GameObjectType type,
                       GameObjectCollisionHandler collisionHandler) {
@@ -44,6 +45,7 @@ public class GameObject {
         this.body.setUserData(id);
         this.collisionHandler = collisionHandler;
         this.type = type;
+        this.directionLocked = false;
         sprite.setSize(getMaxWidth(), getMaxHeight());
         sprite.setCenter(body.getPosition().x, body.getPosition().y);
         sprite.setOriginCenter();
@@ -75,50 +77,10 @@ public class GameObject {
         return (float) ((rad * 180)/ (Math.PI));
     }
 
-    public float degreeToRad(float degree) {
-        return (float) ((Math.PI * degree) / 180);
-    }
-
-    private void moveBody(Body body, float forceX, float forceY) {
-        if (forceX != 0 || forceY != 0) {
-            body.applyForceToCenter(forceX, forceY, true);
-        }
-    }
-
     public void move(float forceX, float forceY) {
-        if (forceX != 0 || forceY != 0) {
+        if (!directionLocked && (forceX != 0 || forceY != 0)) {
             body.applyForceToCenter(forceX, forceY, true);
         }
-    }
-
-    public void moveToAbsolutePosition(int x, int y) {
-        body.getPosition().x = x;
-        body.getPosition().y = y;
-    }
-
-    public void setAbsoluteSpeed(float unitsPerRender) {
-        Vector2 speed = body.getLinearVelocity();
-        body.setLinearVelocity(speed.nor().scl(unitsPerRender));
-    }
-
-    public void moveLeft(float forceInNewton) {
-        moveBody(body, -1 * forceInNewton, 0f);
-    }
-
-    public void moveRight(float forceInNewton) {
-        moveBody(body, forceInNewton, 0f);
-    }
-
-    public void moveDown(float forceInNewton) {
-        moveBody(body, 0f, -1 * forceInNewton);
-    }
-
-    public void moveUp(float forceInNewton) {
-        moveBody(body, 0f, forceInNewton);
-    }
-
-    public void rotate(float degree) {
-        body.setTransform(body.getPosition(), degreeToRad(degree));
     }
 
     public float getMaxWidth() {
@@ -191,6 +153,10 @@ public class GameObject {
     public void changeColor(Color color) {
         this.color = color;
         sprite.setColor(color);
+    }
+
+    public void setDirectionLocked(boolean locked) {
+        directionLocked = locked;
     }
 
     public GameObjectType getType() {

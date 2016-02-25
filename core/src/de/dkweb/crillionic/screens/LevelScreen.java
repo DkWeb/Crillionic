@@ -84,10 +84,10 @@ public class LevelScreen implements Screen {
                     Object userData = contact.getFixtureA().getBody().getUserData();
                     if (userData != null && userData instanceof String) {
                         // This should be the id of GameObject
-                        GameObject block = GameWorld.getWorld().findBlockObject((String) userData);
-                        if (block != null) {
+                        GameObject levelObject = GameWorld.getWorld().findLevelObject((String) userData);
+                        if (levelObject != null) {
                             WorldManifold manifold = contact.getWorldManifold();
-                            if (block.onCollision(toRemove, GameWorld.getWorld().getPlayer(), GameWorld.getWorld()
+                            if (levelObject.onCollision(toRemove, GameWorld.getWorld().getPlayer(), GameWorld.getWorld()
                                     .getGameStatistics())) {
                                 Vector2 contactPos = manifold.getPoints()[0];
                                 ParticleEffectPool.PooledEffect explosion = assets.getExplosionEffect();
@@ -96,7 +96,9 @@ public class LevelScreen implements Screen {
                                 explosion.start();
                                 pendingEffects.add(explosion);
                             }
+                            GameWorld.getWorld().getPlayer().onCollision(toRemove, levelObject, GameWorld.getWorld().getGameStatistics());
                         }
+
                     }
                 }
             }

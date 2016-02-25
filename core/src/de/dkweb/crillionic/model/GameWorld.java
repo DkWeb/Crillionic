@@ -87,7 +87,7 @@ public class GameWorld {
         Vector2 positionPlayer = map.getInitialPlayerPosition();
         Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
         player = new GameObject(GlobalConstants.PLAYER_ID, new Sprite(assets.getTexture(Assets.BALL_TEXTURE)), bodyPlayer,
-                                Color.GREEN, GameObjectType.PLAYER, new DoNothingCollisionHandler());
+                                Color.GREEN, GameObjectType.PLAYER, new PlayerCollisionHandler());
     }
 
     public List<GameObject> getBlocks() {
@@ -119,6 +119,26 @@ public class GameWorld {
             }
         }
         return null;
+    }
+
+    public GameObject findBorderObject(String id) {
+        if (allBorders == null) {
+            throw new IllegalStateException("You must call init-method before calling a method of this singleton!");
+        }
+        for (GameObject border : allBorders) {
+            if (border.getId().equals(id)) {
+                return border;
+            }
+        }
+        return null;
+    }
+
+    public GameObject findLevelObject(String id) {
+        GameObject block = findBlockObject(id);
+        if (block != null) {
+            return block;
+        }
+        return findBorderObject(id);
     }
 
     public List<GameObject> getBorders() {

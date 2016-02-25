@@ -31,14 +31,6 @@ public class SimpleInputProcessor implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        if (keycode == Input.Keys.LEFT) {
-            player.moveLeft(200f);
-            return true;
-        }
-        if (keycode == Input.Keys.RIGHT) {
-            player.moveRight(200f);
-            return true;
-        }
         return false;
     }
 
@@ -86,6 +78,8 @@ public class SimpleInputProcessor implements InputProcessor {
             // We have to switch signs for the y axis because the screen has an y-down
             // and the world an y-up coordinate system
             player.move(dragVector.x, -1 * dragVector.y);
+            // The players' direction can not be changed until he touches another object
+            player.setDirectionLocked(true);
             startDragX = null;
             startDragY = null;
         }
