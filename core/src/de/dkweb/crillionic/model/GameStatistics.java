@@ -33,6 +33,14 @@ public class GameStatistics {
         this.remainingColorBlocks = remainingColorBlocks;
     }
 
+    public GameStatistics(GameStatistics toClone) {
+        this.score = toClone.getScore();
+        this.level = toClone.getLevel();
+        this.lifes = toClone.getLifes();
+        this.remainingTime = toClone.getRemainingTime();
+        this.remainingColorBlocks = toClone.getRemainingColorBlocks();
+    }
+
     public int getScore() {
         return score;
     }

@@ -11,22 +11,22 @@
 package de.dkweb.crillionic.input;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import de.dkweb.crillionic.model.GameObject;
+import de.dkweb.crillionic.model.GameWorld;
 
 public class SimpleInputProcessor implements InputProcessor {
     private Camera camera;
-    private GameObject player;
+    private GameWorld world;
     private Integer startDragX;
     private Integer startDragY;
 
-    public SimpleInputProcessor(Camera camera, GameObject player) {
+    public SimpleInputProcessor(Camera camera, GameWorld world) {
         this.camera = camera;
-        this.player = player;
+        this.world = world;
     }
 
     @Override
@@ -75,11 +75,13 @@ public class SimpleInputProcessor implements InputProcessor {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         if (startDragX != null || startDragY != null) {
             Vector2 dragVector = new Vector2(screenX - startDragX, screenY - startDragY);
+            GameObject player = world.getPlayer();
             // We have to switch signs for the y axis because the screen has an y-down
             // and the world an y-up coordinate system
             player.move(dragVector.x, -1 * dragVector.y);
             // The players' direction can not be changed until he touches another object
             player.setDirectionLocked(true);
+            player.indicatePlayerMove();
             startDragX = null;
             startDragY = null;
         }

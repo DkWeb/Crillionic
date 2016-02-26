@@ -35,6 +35,12 @@ public class GameObject {
     private Color color;
     private GameObjectType type;
     private boolean directionLocked;
+    private boolean movedByPlayer;
+    private boolean bodyDestroyed;
+
+    // A copy of the last known position and speed, after the physics body have been destroyed
+    private float finalSpeed;
+    private Vector2 finalPosition;
 
     public GameObject(String id, Sprite sprite, Body body, Color overwriteColor, GameObjectType type,
                       GameObjectCollisionHandler collisionHandler) {
@@ -46,6 +52,8 @@ public class GameObject {
         this.collisionHandler = collisionHandler;
         this.type = type;
         this.directionLocked = false;
+        this.movedByPlayer = false;
+        this.bodyDestroyed = false;
         sprite.setSize(getMaxWidth(), getMaxHeight());
         sprite.setCenter(body.getPosition().x, body.getPosition().y);
         sprite.setOriginCenter();
@@ -57,6 +65,9 @@ public class GameObject {
     }
 
     public Vector2 getPosition() {
+        if (bodyDestroyed) {
+            return finalPosition;
+        }
         return body.getPosition();
     }
 
@@ -81,6 +92,14 @@ public class GameObject {
         if (!directionLocked && (forceX != 0 || forceY != 0)) {
             body.applyForceToCenter(forceX, forceY, true);
         }
+    }
+
+    public float getSpeed() {
+        if (bodyDestroyed) {
+            return finalSpeed;
+        }
+        Vector2 speed = getBody().getLinearVelocity();
+        return speed.len();
     }
 
     public float getMaxWidth() {
@@ -161,5 +180,32 @@ public class GameObject {
 
     public GameObjectType getType() {
         return type;
+    }
+
+    public boolean hasBeenMoved() {
+        return movedByPlayer;
+    }
+
+    public void indicatePlayerMove() {
+        movedByPlayer = true;
+    }
+
+    /**
+     * You must call this method BEFORE the body has been really destroyed
+     * -> we want to save the most important physics information and need
+     * an intact "body" for this
+     */
+    public void bodyWillBeDestroyed() {
+        finalSpeed = getSpeed();
+        finalPosition = getPosition();
+        bodyDestroyed = true;
+    }
+
+    public boolean getBodyDestroyed() {
+        return bodyDestroyed;
+    }
+
+    public boolean isDirectionLocked() {
+        return directionLocked;
     }
 }

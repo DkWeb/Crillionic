@@ -16,6 +16,7 @@ import de.dkweb.crillionic.utils.ScoreCalculator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Container for all GameObjects of the world and the world-representation of the physics engine.
@@ -45,6 +46,7 @@ public class GameWorld {
     private GameObject player;
     private GameStatistics statistics;
     private World physicsWorld;
+    private Stack<GameState> stateHistory;
 
 
     private Assets assets;
@@ -69,6 +71,8 @@ public class GameWorld {
         intializeBlocks(assets, map);
         initializePlayer(assets, map);
         initializeBorders(assets);
+        stateHistory = new Stack<GameState>();
+        stateHistory.push(GameState.PLAYING);
 
     }
 
@@ -88,6 +92,8 @@ public class GameWorld {
         Body bodyPlayer = definePhysicsObject(positionPlayer, 0.5f, BodyDef.BodyType.DynamicBody, 0f);
         player = new GameObject(GlobalConstants.PLAYER_ID, new Sprite(assets.getTexture(Assets.BALL_TEXTURE)), bodyPlayer,
                                 Color.GREEN, GameObjectType.PLAYER, new PlayerCollisionHandler());
+        Vector2 initialPlayerImpulse = map.getInitialPlayerImpulse();
+        player.move(initialPlayerImpulse.x, initialPlayerImpulse.y);
     }
 
     public List<GameObject> getBlocks() {
@@ -174,6 +180,7 @@ public class GameWorld {
         // The world should be unlocked now -> we can destroy bodies now
         if (toRemove.size() > 0) {
             for (GameObject oneToRemove : toRemove) {
+                oneToRemove.bodyWillBeDestroyed();
                 getPhysicsWorld().destroyBody(oneToRemove.getBody());
                 if (oneToRemove.getType() == GameObjectType.PLAYER) {
                     playerDestroyed = true;
@@ -183,6 +190,16 @@ public class GameWorld {
             toRemove.clear();
         }
         return playerDestroyed;
+    }
+
+    public void rememberGameState(GameState currentGameState) {
+        if (stateHistory.peek() != currentGameState) {
+            stateHistory.push(currentGameState);
+        }
+    }
+
+    public GameState getGameState(int index) {
+        return stateHistory.elementAt(stateHistory.size() - 1 - index);
     }
 
     private void initializeGameStatistics(LevelMap map) {

@@ -7,7 +7,10 @@ import de.dkweb.crillionic.model.GameStatistics;
  */
 public class ScoreCalculator {
     public int getLevelScore(GameStatistics gameStatistics) {
-        return gameStatistics.getScore() + calculateTimeBonus((int) gameStatistics.getRemainingTime());
+        if (gameStatistics.getRemainingColorBlocks() == 0) {
+            return gameStatistics.getScore() + calculateTimeBonus((int) gameStatistics.getRemainingTime());
+        }
+        return gameStatistics.getScore();
     }
 
     public int calculateTimeBonus(int time) {

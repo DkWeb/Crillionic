@@ -18,8 +18,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.viewport.*;
 import de.dkweb.crillionic.Crillionic;
-import de.dkweb.crillionic.events.LevelEventListener;
-import de.dkweb.crillionic.events.SimpleLevelEventListener;
+import de.dkweb.crillionic.events.GameStateController;
+import de.dkweb.crillionic.model.GameState;
 import de.dkweb.crillionic.model.GameWorld;
 import de.dkweb.crillionic.utils.*;
 import de.dkweb.crillionic.input.SimpleInputProcessor;
@@ -41,11 +41,7 @@ public class LevelScreen implements Screen {
     private List<ParticleEffectPool.PooledEffect> pendingEffects;
     private List<GameObject> toRemove;
     private Crillionic game;
-    private JsonManager jsonManager;
-    private boolean levelCompleted;
-    private LevelEventListener levelEventListener;
-    private float secondsSinceLevelCompleted;
-    private boolean stopClock;
+    private GameStateController gameStateController;
 
     public LevelScreen(Crillionic game, Assets assets) {
         this.game = game;
@@ -57,7 +53,7 @@ public class LevelScreen implements Screen {
         camera = new OrthographicCamera(calculateNonDistortingWidth(), GlobalConstants.WORLD_HEIGHT_IN_UNITS);
         viewport = new FitViewport(calculateNonDistortingWidth(), GlobalConstants.WORLD_HEIGHT_IN_UNITS,
                                     camera);
-        jsonManager = new JsonManager();
+        JsonManager jsonManager = new JsonManager();
         LevelMap map = new LevelFactory().createLevel(1, jsonManager);
         GameWorld.getWorld().init(assets, map);
         backgroundTexture = assets.getTexture(Assets.BACKGROUND);
@@ -96,6 +92,7 @@ public class LevelScreen implements Screen {
                                 explosion.start();
                                 pendingEffects.add(explosion);
                             }
+                            System.out.println("Collision detected");
                             GameWorld.getWorld().getPlayer().onCollision(toRemove, levelObject, GameWorld.getWorld().getGameStatistics());
                         }
 
@@ -103,13 +100,8 @@ public class LevelScreen implements Screen {
                 }
             }
         });
-        levelCompleted = false;
-        secondsSinceLevelCompleted = 0f;
-        stopClock = false;
-        levelEventListener = new SimpleLevelEventListener(assets, jsonManager, game, this);
-        Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, GameWorld.getWorld().getPlayer()));
-        Vector2 initialPlayerImpulse = map.getInitialPlayerImpulse();
-        GameWorld.getWorld().getPlayer().move(initialPlayerImpulse.x, initialPlayerImpulse.y);
+        Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, GameWorld.getWorld()));
+        gameStateController = new GameStateController(game, assets, jsonManager, GameWorld.getWorld());
     }
 
     private void ensureSpeedLimit() {
@@ -128,11 +120,17 @@ public class LevelScreen implements Screen {
 
         // Make sure that the player doesn't exceed a maximum speed
         ensureSpeedLimit();
-        GameWorld.getWorld().getPhysicsWorld().step(Gdx.graphics.getDeltaTime(), 6, 2);
-        boolean playerDestroyedNow = GameWorld.getWorld().destroyGameObjects(toRemove);
+        // Whenever the player has speed of nearly 0, this is a tilt -> remove one life
+        if (!player.getBodyDestroyed() && player.hasBeenMoved() &&
+            player.getSpeed() < GlobalConstants.MIN_SPEED_IN_UNITS_PER_RENDER) {
+            GameWorld.getWorld().getGameStatistics().decreaseLifes();
+            toRemove.add(player);
+        }
+        // GameWorld.getWorld().getPhysicsWorld().step(Gdx.graphics.getDeltaTime(), 6, 2);
+        boolean removedPlayer = GameWorld.getWorld().destroyGameObjects(toRemove);
         removeOutdatedParticleEffects();
         GameStatistics gameStatistics = GameWorld.getWorld().getGameStatistics();
-        if (!stopClock) {
+        if (!removedPlayer && GameWorld.getWorld().getGameState(0) == GameState.PLAYING) {
             player.update();
             gameStatistics.decreaseRemainingTime(delta);
         }
@@ -162,26 +160,13 @@ public class LevelScreen implements Screen {
         batch.end();
         staticBatch.begin();
         new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
-
-        // Calling the event handler for level events
-        if (playerDestroyedNow) {
-            stopClock = levelEventListener.playerDestroyed(gameStatistics, GameWorld.getWorld());
-            staticBatch.end();
-            return;
-        }
-        if (gameStatistics.getRemainingColorBlocks() == 0 && levelCompleted) {
-            secondsSinceLevelCompleted += delta;
-            stopClock = levelEventListener.levelFinished(true, gameStatistics, secondsSinceLevelCompleted, staticBatch);
-        } else if (gameStatistics.getLifes() == 0) {
-            stopClock = levelEventListener.levelFinished(false, gameStatistics, secondsSinceLevelCompleted, staticBatch);
-        }
-        if (gameStatistics.getRemainingColorBlocks() == 0 && !levelCompleted) {
-            int score = GameWorld.getWorld().getScoreCalculator().getLevelScore(gameStatistics);
-            stopClock = levelEventListener.levelJustFinished(true, new HighscoreManager(new FileUtils()).isInHighscore(score, jsonManager),
-                                                            gameStatistics, staticBatch);
-            levelCompleted = true;
-        }
+        gameStateController.updateGameState(staticBatch);
         staticBatch.end();
+        doPhysicsStep(delta);
+    }
+
+    private void doPhysicsStep(float deltaTime) {// fixed time step
+        GameWorld.getWorld().getPhysicsWorld().step(deltaTime, 6, 2);
     }
 
     private void removeOutdatedParticleEffects() {
@@ -195,10 +180,6 @@ public class LevelScreen implements Screen {
         if (effectsToRemove.size() > 0) {
             pendingEffects.removeAll(effectsToRemove);
         }
-    }
-
-    public void setStopClock(boolean stopClock) {
-        this.stopClock = stopClock;
     }
 
     @Override

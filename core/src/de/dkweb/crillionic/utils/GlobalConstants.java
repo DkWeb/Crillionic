@@ -16,6 +16,7 @@ public class GlobalConstants {
     public final static float WORLD_WIDTH_IN_UNITS = 20f;
     public final static float WORLD_HEIGHT_IN_UNITS = 10f;
     public final static float MAX_SPEED_IN_UNITS_PER_RENDER = 7f;
+    public final static float MIN_SPEED_IN_UNITS_PER_RENDER = 0.1f;
     public final static int MAX_HIGHSCORE_ENTRIES = 10;
     public final static int BUTTON_ROUNDED_CORNER_RADIUS = 15;
     public final static int BASE_RESOLUTION_WIDTH = 640;
