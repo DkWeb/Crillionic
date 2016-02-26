@@ -92,7 +92,6 @@ public class LevelScreen implements Screen {
                                 explosion.start();
                                 pendingEffects.add(explosion);
                             }
-                            System.out.println("Collision detected");
                             GameWorld.getWorld().getPlayer().onCollision(toRemove, levelObject, GameWorld.getWorld().getGameStatistics());
                         }
 
@@ -166,7 +165,7 @@ public class LevelScreen implements Screen {
     }
 
     private void doPhysicsStep(float deltaTime) {// fixed time step
-        GameWorld.getWorld().getPhysicsWorld().step(deltaTime, 6, 2);
+        GameWorld.getWorld().getPhysicsWorld().step(deltaTime, 10, 5);
     }
 
     private void removeOutdatedParticleEffects() {

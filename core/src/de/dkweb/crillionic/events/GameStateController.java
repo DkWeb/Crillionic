@@ -50,6 +50,7 @@ public class GameStateController {
             return;
         }
         if (currentStatistics.getRemainingColorBlocks() == 0 && formerStatistics.getRemainingColorBlocks() > 0) {
+            checkAndAddToHighscore(currentStatistics);
             gameWorld.rememberGameState(GameState.WAITING_FOR_NEXT_LEVEL);
             switchToHighscoreWithDelay(2);
             formerStatistics = new GameStatistics(currentStatistics);
@@ -72,6 +73,7 @@ public class GameStateController {
         if (currentState == GameState.PLAYER_DESTROYED) {
             // Two possibilities: 1.) Player has lifes left, 2.) Player has no more lifes left
             if (gameWorld.getGameStatistics().getLifes() == 0) {
+                checkAndAddToHighscore(currentStatistics);
                 gameWorld.rememberGameState(GameState.WAITING_FOR_GAME_OVER);
                 switchToHighscoreWithDelay(2);
             } else {
@@ -82,8 +84,7 @@ public class GameStateController {
             return;
         }
         if (currentState == GameState.WAITING_FOR_GAME_OVER) {
-            int score = GameWorld.getWorld().getScoreCalculator().getLevelScore(currentStatistics);
-            boolean isInHighscore = new HighscoreManager(new FileUtils()).isInHighscore(score, jsonManager);
+            boolean isInHighscore = isInHighscore(currentStatistics);
             showGameOver(isInHighscore, readyToDrawBatch);
             formerStatistics = new GameStatistics(currentStatistics);
             return;
@@ -98,6 +99,18 @@ public class GameStateController {
             formerStatistics = new GameStatistics(currentStatistics);
             return;
         }
+    }
+
+    private boolean isInHighscore(GameStatistics currentStatistics) {
+        int score = GameWorld.getWorld().getScoreCalculator().getLevelScore(currentStatistics);
+        HighscoreManager highscoreManager = new HighscoreManager(new FileUtils());
+        return highscoreManager.isInHighscore(score, jsonManager);
+    }
+
+    private boolean checkAndAddToHighscore(GameStatistics currentStatistics) {
+        int score = GameWorld.getWorld().getScoreCalculator().getLevelScore(currentStatistics);
+        HighscoreManager highscoreManager = new HighscoreManager(new FileUtils());
+        return highscoreManager.addEntry(score, jsonManager);
     }
 
     private void switchToHighscoreWithDelay(long delayInSeconds) {
