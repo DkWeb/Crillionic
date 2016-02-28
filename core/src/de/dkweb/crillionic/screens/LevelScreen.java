@@ -42,6 +42,7 @@ public class LevelScreen implements Screen {
     private List<GameObject> toRemove;
     private Crillionic game;
     private GameStateController gameStateController;
+    private PhysicsUpdater physicsUpdater;
 
     public LevelScreen(Crillionic game, Assets assets) {
         this.game = game;
@@ -101,6 +102,7 @@ public class LevelScreen implements Screen {
         });
         Gdx.input.setInputProcessor(new SimpleInputProcessor(camera, GameWorld.getWorld()));
         gameStateController = new GameStateController(game, assets, jsonManager, GameWorld.getWorld());
+        physicsUpdater = new PhysicsUpdater(GameWorld.getWorld());
     }
 
     private void ensureSpeedLimit() {
@@ -115,8 +117,8 @@ public class LevelScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        // System.out.println("Frame rate: " + 1/delta);
         GameObject player = GameWorld.getWorld().getPlayer();
-
         // Make sure that the player doesn't exceed a maximum speed
         ensureSpeedLimit();
         // Whenever the player has speed of nearly 0, this is a tilt -> remove one life
@@ -125,7 +127,6 @@ public class LevelScreen implements Screen {
             GameWorld.getWorld().getGameStatistics().decreaseLifes();
             toRemove.add(player);
         }
-        // GameWorld.getWorld().getPhysicsWorld().step(Gdx.graphics.getDeltaTime(), 6, 2);
         boolean removedPlayer = GameWorld.getWorld().destroyGameObjects(toRemove);
         removeOutdatedParticleEffects();
         GameStatistics gameStatistics = GameWorld.getWorld().getGameStatistics();
@@ -161,11 +162,7 @@ public class LevelScreen implements Screen {
         new StatisticRenderer().renderGameStatistics(gameStatistics, staticBatch, assets);
         gameStateController.updateGameState(staticBatch);
         staticBatch.end();
-        doPhysicsStep(delta);
-    }
-
-    private void doPhysicsStep(float deltaTime) {// fixed time step
-        GameWorld.getWorld().getPhysicsWorld().step(deltaTime, 10, 5);
+        physicsUpdater.doPhysics(delta);
     }
 
     private void removeOutdatedParticleEffects() {
