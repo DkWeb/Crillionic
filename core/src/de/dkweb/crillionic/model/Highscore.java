@@ -27,6 +27,12 @@ public class Highscore {
         return scores;
     }
 
+    public void ensureEntryLimit(int maxEntries) {
+        if (scores.size() > maxEntries) {
+            scores = scores.subList(0, maxEntries);
+        }
+    }
+
     public boolean isInHigshscore(int score) {
         if (score <= 0) {
             return false;

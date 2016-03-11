@@ -42,6 +42,9 @@ public class JsonManager {
     }
 
     public Highscore loadHighscore(InputStream inputStream) {
-        return gson.fromJson(new BufferedReader(new InputStreamReader(inputStream)), Highscore.class);
+        Highscore highscore = gson.fromJson(new BufferedReader(new InputStreamReader(inputStream)), Highscore.class);
+        // Make sure that the highscore has no more than the (currently) allowed maximum number of entries
+        highscore.ensureEntryLimit(GlobalConstants.MAX_HIGHSCORE_ENTRIES);
+        return highscore;
     }
 }
