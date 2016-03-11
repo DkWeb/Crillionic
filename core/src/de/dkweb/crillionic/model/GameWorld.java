@@ -64,10 +64,10 @@ public class GameWorld {
      * This method MUST be called whenever the app comes back into the foreground.
      * Otherwise the singleton will not be instantiated correctly
      */
-    public void init(Assets assets, LevelMap map) {
+    public void init(Assets assets, LevelMap map, GameStatistics gameStatistics) {
         this.assets = assets;
         this.map = map;
-        initializeGameStatistics(map);
+        this.statistics = gameStatistics;
         intializeBlocks(assets, map);
         initializePlayer(assets, map);
         initializeBorders(assets);
@@ -84,7 +84,7 @@ public class GameWorld {
     }
 
     private void intializeBlocks(Assets assets, LevelMap  map) {
-        allBlocks = createBlocks(assets, map, getGameStatistics());
+        allBlocks = createBlocks(assets, map);
     }
 
     private void initializePlayer(Assets assets, LevelMap map) {
@@ -202,11 +202,6 @@ public class GameWorld {
         return stateHistory.elementAt(stateHistory.size() - 1 - index);
     }
 
-    private void initializeGameStatistics(LevelMap map) {
-        statistics = new GameStatistics(0, map.getLevelId(), GlobalConstants.INITIAL_LIFES,
-                                        map.getColoredBlocks().size(), GlobalConstants.INITIAL_TIME);
-    }
-
     private void initializeBorders(Assets assets) {
         // We need a border around the level to avoid that our player can "fall out of the screen"
         allBorders = new ArrayList<GameObject>();
@@ -280,8 +275,7 @@ public class GameWorld {
         return targetBody;
     }
 
-    private GameObject createBlockObject(MapObject block, Vector2[] verticesBlock, Assets assets,
-                                         GameStatistics gameStatistics) {
+    private GameObject createBlockObject(MapObject block, Vector2[] verticesBlock, Assets assets) {
         GameObject gameObject = null;
         Body body = definePhysicsObject(block.getPosition(), verticesBlock, BodyDef.BodyType.StaticBody, 1f);
         if (GameObjectType.COLORED_BLOCKS.contains(block.getType())) {
@@ -302,7 +296,7 @@ public class GameWorld {
         return gameObject;
     }
 
-    private List<GameObject> createBlocks(Assets assets, LevelMap map, GameStatistics gameStatistics) {
+    private List<GameObject> createBlocks(Assets assets, LevelMap map) {
         List<GameObject> blocks = new ArrayList<GameObject>();
         Vector2[] verticesBlock= new Vector2[] {
                 new Vector2(-1,  0.5f),
@@ -310,7 +304,7 @@ public class GameWorld {
                 new Vector2( 1, -0.5f),
                 new Vector2( 1,  0.5f)};
         for (MapObject block : map.getAllBlocks()) {
-            blocks.add(createBlockObject(block, verticesBlock, assets, gameStatistics));
+            blocks.add(createBlockObject(block, verticesBlock, assets));
         }
         return blocks;
     }

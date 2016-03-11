@@ -21,6 +21,7 @@ public class GlobalConstants {
     public final static int BUTTON_ROUNDED_CORNER_RADIUS = 15;
     public final static int BASE_RESOLUTION_WIDTH = 640;
     public final static int INITIAL_LIFES = 3;
-    public final static int INITIAL_TIME = 60;
+    public final static int TIME_PER_LEVEL = 60;
     public final static float BORDER_RESITUTION = 1.5f;
+    public final static int MAX_LEVELS = 2;
 }

@@ -10,6 +10,11 @@
  */
 package de.dkweb.crillionic.model;
 
+import de.dkweb.crillionic.map.MapObject;
+import de.dkweb.crillionic.utils.GlobalConstants;
+
+import java.util.List;
+
 /**
  * The relevant information about the current game from the players'
  * point of view (like his current score etc.)
@@ -75,5 +80,17 @@ public class GameStatistics {
 
     public void decreaseRemainingTime(float delta) {
         remainingTime -= delta;
+    }
+
+    public void increaseLevel() {
+        level++;
+    }
+
+    public void resetRemainingTime() {
+        remainingTime = GlobalConstants.TIME_PER_LEVEL;
+    }
+
+    public void setRemainingBlocks(int remainingBlocks) {
+        this.remainingColorBlocks = remainingBlocks;
     }
 }

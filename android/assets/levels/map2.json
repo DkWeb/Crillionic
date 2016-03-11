@@ -1,0 +1,20 @@
+{
+"levelId":2,
+"blocks": 
+{
+  "Block 1": {"id":"Block 1","type":"NORMAL_BLOCK","position":{"x": -4,"y":3}},
+  "Block 2": {"id":"Block 2","type":"RED_BLOCK","position":{"x": -1.8,"y":3}},
+  "Block 3": {"id":"Block 3","type":"KILLER","position":{"x": 1.8,"y":3}},
+  "Block 4": {"id":"Block 4","type":"COLORIZE_BLUE","position":{"x": 4,"y":3}},
+
+  "Block 5": {"id":"Block 5","type":"NORMAL_BLOCK","position":{"x": -6,"y":0}},
+  "Block 6": {"id":"Block 6","type":"NORMAL_BLOCK","position":{"x":6,"y":0}},
+
+  "Block 7": {"id":"Block 7","type":"COLORIZE_RED","position":{"x": -4,"y":-3}},
+  "Block 8": {"id":"Block 8","type":"KILLER","position":{"x": -1.8,"y":-3}},
+  "Block 9": {"id":"Block 9","type":"GREEN_BLOCK","position":{"x": 1.8,"y":-3}},
+  "Block 1ß": {"id":"Block 10","type":"NORMAL_BLOCK","position":{"x": 4,"y":-3}}
+},
+"initialPlayerPosition": { "x": 0, "y": 0},
+"initialPlayerImpulse": { "x": 150, "y": 0}
+}

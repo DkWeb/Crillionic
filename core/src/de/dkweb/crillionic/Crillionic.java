@@ -25,6 +25,8 @@ import de.dkweb.crillionic.input.SimpleInputProcessor;
 import de.dkweb.crillionic.map.LevelMap;
 import de.dkweb.crillionic.map.MapObject;
 import de.dkweb.crillionic.model.GameObject;
+import de.dkweb.crillionic.model.GameState;
+import de.dkweb.crillionic.model.GameStatistics;
 import de.dkweb.crillionic.screens.HighscoreScreen;
 import de.dkweb.crillionic.screens.LevelScreen;
 import de.dkweb.crillionic.screens.MenuScreen;
@@ -44,9 +46,9 @@ public class Crillionic extends Game {
         openMainMenu();
 	}
 
-    public void startLevel() {
+    public void startLevel(GameStatistics gameStatistics) {
         disposeCurrentScreenIfExists();
-        setScreen(new LevelScreen(this, assets));
+        setScreen(new LevelScreen(this, assets, gameStatistics));
     }
 
     public void openHighscore() {

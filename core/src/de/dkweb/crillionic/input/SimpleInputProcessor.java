@@ -16,7 +16,11 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import de.dkweb.crillionic.model.GameObject;
+import de.dkweb.crillionic.model.GameObjectType;
 import de.dkweb.crillionic.model.GameWorld;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SimpleInputProcessor implements InputProcessor {
     private Camera camera;
@@ -41,6 +45,21 @@ public class SimpleInputProcessor implements InputProcessor {
 
     @Override
     public boolean keyTyped(char character) {
+        if (character == 'n') {
+            // Jump to the next level
+            // We have to fiddle here a little bit around with implementation details of the game
+            // -> will be removed for the final version, so this should be ok
+            List<GameObject> toDestroy = new ArrayList<GameObject>();
+            for (GameObject object : world.getBlocks()) {
+                if (GameObjectType.COLORED_BLOCKS.contains(object.getType())) {
+                    toDestroy.add(object);
+                }
+            }
+            while (world.getGameStatistics().getRemainingColorBlocks() > 0) {
+                world.getGameStatistics().decreaseRemainingColorBlocks();
+            }
+            world.destroyGameObjects(toDestroy);
+        }
         return false;
     }
 

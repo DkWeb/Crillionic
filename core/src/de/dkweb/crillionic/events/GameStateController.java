@@ -50,9 +50,13 @@ public class GameStateController {
             return;
         }
         if (currentStatistics.getRemainingColorBlocks() == 0 && formerStatistics.getRemainingColorBlocks() > 0) {
-            checkAndAddToHighscore(currentStatistics);
             gameWorld.rememberGameState(GameState.WAITING_FOR_NEXT_LEVEL);
-            switchToHighscoreWithDelay(2);
+            if (GlobalConstants.MAX_LEVELS > currentStatistics.getLevel()) {
+                switchToNextLevelWithDelay(2);
+            } else {
+                checkAndAddToHighscore(currentStatistics);
+                switchToHighscoreWithDelay(2);
+            }
             formerStatistics = new GameStatistics(currentStatistics);
             return;
         }
@@ -118,6 +122,18 @@ public class GameStateController {
             @Override
             public void run() {
                 game.openHighscore();
+            }
+        }, delayInSeconds);
+    }
+
+    private void switchToNextLevelWithDelay(long delayInSeconds) {
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                GameStatistics statistics = gameWorld.getGameStatistics();
+                statistics.increaseLevel();
+                statistics.resetRemainingTime();
+                game.startLevel(statistics);
             }
         }, delayInSeconds);
     }

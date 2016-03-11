@@ -23,9 +23,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import de.dkweb.crillionic.Crillionic;
-import de.dkweb.crillionic.utils.Assets;
-import de.dkweb.crillionic.utils.GlobalConstants;
-import de.dkweb.crillionic.utils.GraphicUtils;
+import de.dkweb.crillionic.map.LevelMap;
+import de.dkweb.crillionic.model.GameStatistics;
+import de.dkweb.crillionic.utils.*;
 
 public class MenuScreen implements Screen {
     private Skin skin;
@@ -84,7 +84,7 @@ public class MenuScreen implements Screen {
         TextButton newGameButton = new TextButton(bundle.get("new_game"), skin);
         newGameButton.addListener(new InputListener() {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                game.startLevel();
+                game.startLevel(getInitialGameStatistics());
                 return true;
             }
 
@@ -103,6 +103,12 @@ public class MenuScreen implements Screen {
         });
         table.add(openHighscoreButton).width(graphicUtils.getRelativeWidth(80));
         Gdx.input.setInputProcessor(stage);
+    }
+
+    private GameStatistics getInitialGameStatistics() {
+        LevelMap map = new LevelFactory().createLevel(1, new JsonManager());
+        return new GameStatistics(0, map.getLevelId(), GlobalConstants.INITIAL_LIFES,
+                map.getColoredBlocks().size(), GlobalConstants.TIME_PER_LEVEL);
     }
 
     @Override

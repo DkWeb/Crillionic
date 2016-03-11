@@ -20,9 +20,6 @@ import java.io.InputStream;
 
 public class LevelFactory {
     public LevelMap createLevel(int levelNo, JsonManager jsonManager) {
-        if (levelNo != 1) {
-            throw new IllegalArgumentException("We have just implemented level 1 up to now!");
-        }
         LevelMap map = null;
         InputStream inputStream = null;
         try {

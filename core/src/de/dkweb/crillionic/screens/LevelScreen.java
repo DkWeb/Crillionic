@@ -43,10 +43,12 @@ public class LevelScreen implements Screen {
     private Crillionic game;
     private GameStateController gameStateController;
     private PhysicsUpdater physicsUpdater;
+    private GameStatistics gameStatistics;
 
-    public LevelScreen(Crillionic game, Assets assets) {
+    public LevelScreen(Crillionic game, Assets assets, GameStatistics gameStatistics) {
         this.game = game;
         this.assets = assets;
+        this.gameStatistics = gameStatistics;
     }
 
     @Override
@@ -55,8 +57,9 @@ public class LevelScreen implements Screen {
         viewport = new FitViewport(calculateNonDistortingWidth(), GlobalConstants.WORLD_HEIGHT_IN_UNITS,
                                     camera);
         JsonManager jsonManager = new JsonManager();
-        LevelMap map = new LevelFactory().createLevel(1, jsonManager);
-        GameWorld.getWorld().init(assets, map);
+        LevelMap map = new LevelFactory().createLevel(gameStatistics.getLevel(), jsonManager);
+        gameStatistics.setRemainingBlocks(map.getColoredBlocks().size());
+        GameWorld.getWorld().init(assets, map, gameStatistics);
         backgroundTexture = assets.getTexture(Assets.BACKGROUND);
         batch = new SpriteBatch();
         staticBatch = new SpriteBatch();
