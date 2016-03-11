@@ -1,5 +1,8 @@
 package de.dkweb.crillionic.model;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by dirkweber
  */

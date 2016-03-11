@@ -198,6 +198,10 @@ public class GameWorld {
         }
     }
 
+    public GameState getCurrentGameState() {
+        return getGameState(0);
+    }
+
     public GameState getGameState(int index) {
         return stateHistory.elementAt(stateHistory.size() - 1 - index);
     }

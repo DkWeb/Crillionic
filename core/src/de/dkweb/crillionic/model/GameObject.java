@@ -152,7 +152,9 @@ public class GameObject {
     }
 
     public boolean onCollision(List<GameObject> removals, GameObject collidedWith, GameStatistics statistics) {
-        if (collisionHandler != null && !(collisionHandler instanceof DoNothingCollisionHandler)) {
+        if (collisionHandler != null &&
+                GameWorld.getWorld().getCurrentGameState() == GameState.PLAYING &&
+                !(collisionHandler instanceof DoNothingCollisionHandler)) {
             return collisionHandler.onCollision(removals, this, collidedWith, statistics);
         }
         return false;
