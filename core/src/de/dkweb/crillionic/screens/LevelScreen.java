@@ -206,7 +206,7 @@ public class LevelScreen implements Screen {
 
     @Override
     public void hide() {
-
+        dispose();
     }
 
     @Override
